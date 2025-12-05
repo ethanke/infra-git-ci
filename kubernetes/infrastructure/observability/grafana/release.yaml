@@ -177,11 +177,6 @@ spec:
     #   fromAddress: alerts@lum.tools
     #   fromName: "Lum GitOps Alerts"
     
-    # Service
-    service:
-      type: ClusterIP
-      port: 80
-    
     # Grafana.ini configuration
     grafana.ini:
       server:
