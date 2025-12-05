@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: whoami
+  namespace: test-services
+  annotations:
+    # Automated DNS via external-dns
+    external-dns.alpha.kubernetes.io/hostname: echo.lum.tools
+    external-dns.alpha.kubernetes.io/ttl: "300"
+    # TLS via cert-manager
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - echo.lum.tools
+    secretName: echo-lum-tools-tls
+  rules:
+  - host: echo.lum.tools
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: whoami
+            port:
+              number: 80

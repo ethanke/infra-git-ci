@@ -1,0 +1,10 @@
+# Whoami Echo Service
+# Great for testing Ingress, DNS, and request headers
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml

@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-public
+  namespace: observability
+  annotations:
+    # Automated DNS via external-dns
+    external-dns.alpha.kubernetes.io/hostname: monitor.lum.tools
+    external-dns.alpha.kubernetes.io/ttl: "300"
+    # TLS via cert-manager
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - monitor.lum.tools
+    secretName: monitor-lum-tools-tls
+  rules:
+  - host: monitor.lum.tools
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 3000

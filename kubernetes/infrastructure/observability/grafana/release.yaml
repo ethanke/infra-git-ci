@@ -36,18 +36,23 @@ spec:
         cpu: 500m
         memory: 512Mi
     
-    # Ingress
+    # Ingress - disabled until Traefik is deployed
     ingress:
-      enabled: true
-      ingressClassName: traefik
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-      hosts:
-        - grafana.lum.tools
-      tls:
-        - secretName: grafana-tls
-          hosts:
-            - grafana.lum.tools
+      enabled: false
+      # ingressClassName: traefik
+      # annotations:
+      #   cert-manager.io/cluster-issuer: letsencrypt-prod
+      # hosts:
+      #   - grafana.lum.tools
+      # tls:
+      #   - secretName: grafana-tls
+      #     hosts:
+      #       - grafana.lum.tools
+    
+    # Service type for port-forward access
+    service:
+      type: ClusterIP
+      port: 80
     
     # Data sources (LGTM stack)
     datasources:

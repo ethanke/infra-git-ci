@@ -1,0 +1,12 @@
+# Test Services for New Infrastructure
+# Safe to deploy - uses NEW subdomains not in old infra
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: test-services
+
+resources:
+  - namespace.yaml
+  - whoami/
+  - grafana-public/

@@ -10,6 +10,13 @@ resources:
   # Core infrastructure
   - sources/
   
+  # Observability stack
+  - observability/namespace.yaml
+  - observability/loki/
+  - observability/tempo/
+  - observability/promtail/
+  - observability/grafana/
+  
   # # Databases
   # - databases/
   
@@ -18,13 +25,6 @@ resources:
   
   # # Tunnel service (lrok backend)
   # - frp/
-  
-  # # Observability stack
-  # - observability/namespace.yaml
-  # - observability/loki/
-  # - observability/grafana/
-  # - observability/tempo/
-  # - observability/promtail/
   
   # # Ingress & Certificates
   # - cert-manager/
