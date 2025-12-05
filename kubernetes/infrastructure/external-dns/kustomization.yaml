@@ -1,0 +1,17 @@
+# external-dns Kustomization
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: external-dns
+
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - porkbun-credentials-secret.yaml
+  - deployment.yaml
+
+commonLabels:
+  app.kubernetes.io/name: external-dns
+  app.kubernetes.io/component: dns-automation
+  app.kubernetes.io/part-of: lum-tools

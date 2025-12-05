@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: external-dns
+  labels:
+    app: external-dns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: external-dns
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      # Main external-dns controller
+      - name: external-dns
+        image: registry.k8s.io/external-dns/external-dns:v0.14.0
+        args:
+        - --source=ingress
+        - --source=service
+        - --provider=webhook
+        - --webhook-provider-url=http://localhost:8888
+        - --domain-filter=lum.tools
+        - --txt-owner-id=lum-gitops-cluster
+        - --txt-prefix=_external-dns.
+        - --log-level=info
+        # Start in dry-run mode for safety - remove after verification
+        - --dry-run=false
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+          limits:
+            memory: "200Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 7979
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 7979
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      
+      # Porkbun webhook sidecar
+      - name: porkbun-webhook
+        image: ghcr.io/mdonoughe/external-dns-porkbun-webhook:v1.0.0
+        ports:
+        - containerPort: 8888
+          name: webhook
+        env:
+        - name: PORKBUN_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: porkbun-credentials
+              key: api-key
+        - name: PORKBUN_SECRET_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: porkbun-credentials
+              key: secret-api-key
+        - name: DOMAIN_FILTER
+          value: "lum.tools"
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+          limits:
+            memory: "200Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8888
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8888
+          initialDelaySeconds: 5
+          periodSeconds: 10

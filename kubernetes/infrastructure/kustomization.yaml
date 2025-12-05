@@ -9,37 +9,39 @@ namespace: flux-system
 resources:
   # Core infrastructure
   - sources/
-  - configs/
   
-  # Databases
-  - databases/
+  # # Databases
+  # - databases/
   
-  # Git hosting & CI
-  - gitea/
+  # # Git hosting & CI
+  # - gitea/
   
-  # Tunnel service (lrok backend)
-  - frp/
+  # # Tunnel service (lrok backend)
+  # - frp/
   
-  # Observability stack
-  - observability/namespace.yaml
-  - observability/loki/
-  - observability/grafana/
-  - observability/tempo/
-  - observability/promtail/
+  # # Observability stack
+  # - observability/namespace.yaml
+  # - observability/loki/
+  # - observability/grafana/
+  # - observability/tempo/
+  # - observability/promtail/
   
-  # Ingress & Certificates
-  - cert-manager/
-  - cert-manager-porkbun/
-  - traefik/
+  # # Ingress & Certificates
+  # - cert-manager/
+  # - cert-manager-porkbun/
+  # - traefik/
   
-  # Storage
-  - longhorn/
+  # # DNS automation
+  # - external-dns/
   
-  # Registry
-  - registry/
+  # # Storage
+  # - longhorn/
   
-  # Secrets management
-  - external-secrets/
+  # # Registry
+  # - registry/
   
-  # Network security
-  - network-policies/
+  # # Secrets management
+  # - external-secrets/
+  
+  # # Network security
+  # - network-policies/
