@@ -75,17 +75,9 @@ spec:
     resultsCache:
       enabled: false
     
-    # Gateway
+    # Disable gateway - access Loki directly
     gateway:
-      enabled: true
-      replicas: 1
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          cpu: 200m
-          memory: 128Mi
+      enabled: false
     
     # Disable test/debug components
     test:

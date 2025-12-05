@@ -34,7 +34,7 @@ spec:
         datasources:
           - name: Loki
             type: loki
-            url: http://loki-gateway.observability:80
+            url: http://loki.observability:3100
             access: proxy
             isDefault: true
           - name: Tempo
