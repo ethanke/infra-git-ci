@@ -131,7 +131,3 @@ spec:
       - name: machine-id
         mountPath: /etc/machine-id
         readOnly: true
-    
-    # Service Monitor
-    serviceMonitor:
-      enabled: true

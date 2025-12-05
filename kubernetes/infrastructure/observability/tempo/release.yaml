@@ -74,7 +74,3 @@ spec:
     # Service for OTLP receivers
     service:
       type: ClusterIP
-    
-    # Service Monitor for Prometheus
-    serviceMonitor:
-      enabled: true
