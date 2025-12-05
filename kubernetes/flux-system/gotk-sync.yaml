@@ -12,7 +12,7 @@ spec:
     branch: main
   secretRef:
     name: flux-system
-  url: ssh://git@github.com/lum-tools/infra-git-ci.git
+  url: ssh://git@github.com/ethanke/infra-git-ci.git
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
