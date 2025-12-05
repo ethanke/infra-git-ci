@@ -16,6 +16,13 @@ spec:
         name: grafana
         namespace: flux-system
   values:
+    # Monitoring
+    monitoring:
+      selfMonitoring:
+        enabled: false
+      serviceMonitor:
+        enabled: false
+    
     # Single binary mode for simplicity (can scale to distributed later)
     deploymentMode: SingleBinary
     

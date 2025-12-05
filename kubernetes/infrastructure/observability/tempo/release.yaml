@@ -15,6 +15,12 @@ spec:
         name: grafana
         namespace: flux-system
   values:
+    # Disable ServiceMonitor (Prometheus Operator not installed)
+    serviceMonitor:
+      enabled: false
+    prometheusRule:
+      enabled: false
+    
     # Single binary mode
     tempo:
       metricsGenerator:

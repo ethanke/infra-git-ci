@@ -16,6 +16,10 @@ spec:
         name: grafana
         namespace: flux-system
   values:
+    # Disable ServiceMonitor (Prometheus Operator not installed)
+    serviceMonitor:
+      enabled: false
+    
     # Loki endpoint
     config:
       clients:

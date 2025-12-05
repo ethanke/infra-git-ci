@@ -17,9 +17,9 @@ spec:
   values:
     replicas: 1
     
-    # Admin credentials (use SOPS-encrypted secret in production)
+    # Admin credentials
     adminUser: admin
-    adminPassword: "lum-gitops-admin"  # Change this!
+    adminPassword: "admin"  # Default for initial setup
     
     # Persistence
     persistence:
