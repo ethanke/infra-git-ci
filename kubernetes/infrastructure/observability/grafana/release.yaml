@@ -6,6 +6,7 @@ metadata:
   namespace: observability
 spec:
   interval: 30m
+  timeout: 10m
   chart:
     spec:
       chart: grafana
@@ -19,7 +20,7 @@ spec:
     
     # Admin credentials
     adminUser: admin
-    adminPassword: "admin"  # Default for initial setup
+    adminPassword: "admin"
     
     # Persistence
     persistence:
@@ -36,134 +37,36 @@ spec:
         cpu: 500m
         memory: 512Mi
     
-    # Ingress - disabled until Traefik is deployed
+    # Ingress disabled
     ingress:
       enabled: false
-      # ingressClassName: traefik
-      # annotations:
-      #   cert-manager.io/cluster-issuer: letsencrypt-prod
-      # hosts:
-      #   - grafana.lum.tools
-      # tls:
-      #   - secretName: grafana-tls
-      #     hosts:
-      #       - grafana.lum.tools
     
-    # Service type for port-forward access
+    # Service
     service:
       type: ClusterIP
       port: 80
     
-    # Data sources (LGTM stack)
+    # Datasources - minimal config
     datasources:
       datasources.yaml:
         apiVersion: 1
         datasources:
-          # Prometheus (from Cilium/kube-prometheus)
-          - name: Prometheus
-            type: prometheus
-            url: http://prometheus-operated.monitoring:9090
-            access: proxy
-            isDefault: true
-            jsonData:
-              timeInterval: 30s
-          
-          # Loki for logs
           - name: Loki
             type: loki
             url: http://loki-gateway.observability:80
             access: proxy
-            jsonData:
-              maxLines: 1000
-              derivedFields:
-                - datasourceUid: tempo
-                  matcherRegex: "trace_id=(\\w+)"
-                  name: TraceID
-                  url: "$${__value.raw}"
-          
-          # Tempo for traces
+            isDefault: true
           - name: Tempo
             type: tempo
             uid: tempo
             url: http://tempo.observability:3100
             access: proxy
-            jsonData:
-              tracesToLogsV2:
-                datasourceUid: loki
-                spanStartTimeShift: "-1h"
-                spanEndTimeShift: "1h"
-                filterByTraceID: true
-                filterBySpanID: false
-              serviceMap:
-                datasourceUid: prometheus
-              nodeGraph:
-                enabled: true
-              lokiSearch:
-                datasourceUid: loki
     
-    # Dashboards
-    dashboardProviders:
-      dashboardproviders.yaml:
-        apiVersion: 1
-        providers:
-          - name: 'default'
-            orgId: 1
-            folder: ''
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/default
-          - name: 'lum-tools'
-            orgId: 1
-            folder: 'Lum Tools'
-            type: file
-            disableDeletion: false
-            editable: true
-            options:
-              path: /var/lib/grafana/dashboards/lum-tools
-    
-    # Pre-configured dashboards
-    dashboards:
-      default:
-        # Kubernetes dashboards
-        kubernetes-cluster:
-          gnetId: 7249
-          revision: 1
-          datasource: Prometheus
-        kubernetes-pods:
-          gnetId: 6336
-          revision: 1
-          datasource: Prometheus
-        # Loki dashboard
-        loki-logs:
-          gnetId: 13639
-          revision: 2
-          datasource: Loki
-        # Traefik dashboard
-        traefik:
-          gnetId: 17346
-          revision: 8
-          datasource: Prometheus
-    
-    # Sidecar for ConfigMap dashboards
+    # Sidecar
     sidecar:
       dashboards:
         enabled: true
         searchNamespace: ALL
-        folderAnnotation: grafana_folder
-        provider:
-          foldersFromFilesStructure: true
       datasources:
         enabled: true
         searchNamespace: ALL
-    
-    # Alerting configuration
-    alerting:
-      enabled: true
-    
-    # Plugins
-    plugins:
-      - grafana-piechart-panel
-      - grafana-clock-panel
-      - grafana-simple-json-datasource
