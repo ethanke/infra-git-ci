@@ -1,0 +1,6 @@
+*.tfstate*
+*.tfvars
+!*.tfvars.example
+.terraform/
+lum-gitops_kubeconfig.yaml
+lum-gitops_kustomization_backup.yaml

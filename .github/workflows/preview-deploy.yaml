@@ -1,0 +1,247 @@
+# Preview Environment Workflow
+# Creates ephemeral preview environments for PRs
+name: Preview Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+      - 'kubernetes/apps/**'
+      - 'services/**'
+
+env:
+  KUBECONFIG_PATH: /tmp/kubeconfig.yaml
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30.0'
+      
+      - name: Setup kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $KUBECONFIG_PATH
+          chmod 600 $KUBECONFIG_PATH
+      
+      - name: Generate Preview Namespace
+        id: namespace
+        run: |
+          # Create unique namespace from PR number
+          NAMESPACE="preview-pr-${{ github.event.pull_request.number }}"
+          echo "namespace=$NAMESPACE" >> $GITHUB_OUTPUT
+          echo "Preview namespace: $NAMESPACE"
+      
+      - name: Create Preview Namespace
+        run: |
+          kubectl create namespace ${{ steps.namespace.outputs.namespace }} --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Add labels
+          kubectl label namespace ${{ steps.namespace.outputs.namespace }} \
+            lum.tools/preview=true \
+            lum.tools/pr-number="${{ github.event.pull_request.number }}" \
+            lum.tools/created-by="github-actions" \
+            --overwrite
+      
+      - name: Detect Changed Services
+        id: changes
+        run: |
+          # Get list of changed services
+          CHANGED_SERVICES=""
+          
+          # Check services directory
+          for dir in services/*/; do
+            SERVICE=$(basename $dir)
+            if git diff --name-only origin/main...HEAD | grep -q "services/$SERVICE/"; then
+              CHANGED_SERVICES="$CHANGED_SERVICES $SERVICE"
+            fi
+          done
+          
+          # Check kubernetes/apps directory
+          for dir in kubernetes/apps/*/; do
+            SERVICE=$(basename $dir)
+            if git diff --name-only origin/main...HEAD | grep -q "kubernetes/apps/$SERVICE/"; then
+              CHANGED_SERVICES="$CHANGED_SERVICES $SERVICE"
+            fi
+          done
+          
+          CHANGED_SERVICES=$(echo $CHANGED_SERVICES | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "services=$CHANGED_SERVICES" >> $GITHUB_OUTPUT
+          echo "Changed services: $CHANGED_SERVICES"
+      
+      - name: Deploy Preview Services
+        if: steps.changes.outputs.services != ''
+        run: |
+          NAMESPACE="${{ steps.namespace.outputs.namespace }}"
+          
+          for SERVICE in ${{ steps.changes.outputs.services }}; do
+            echo "Deploying $SERVICE to $NAMESPACE..."
+            
+            # Check for kustomize overlay
+            if [ -d "kubernetes/apps/$SERVICE/preview" ]; then
+              kubectl apply -k kubernetes/apps/$SERVICE/preview -n $NAMESPACE
+            elif [ -d "kubernetes/apps/$SERVICE/base" ]; then
+              kubectl apply -k kubernetes/apps/$SERVICE/base -n $NAMESPACE
+            elif [ -f "services/$SERVICE/k8s/deployment.yaml" ]; then
+              kubectl apply -f services/$SERVICE/k8s/ -n $NAMESPACE
+            else
+              echo "No deployment found for $SERVICE, skipping..."
+            fi
+          done
+      
+      - name: Wait for Deployments
+        run: |
+          NAMESPACE="${{ steps.namespace.outputs.namespace }}"
+          
+          echo "Waiting for deployments to be ready..."
+          kubectl wait --for=condition=available deployment --all \
+            -n $NAMESPACE \
+            --timeout=300s || true
+          
+          # Get status
+          kubectl get pods -n $NAMESPACE
+      
+      - name: Create Preview Ingress
+        run: |
+          NAMESPACE="${{ steps.namespace.outputs.namespace }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          
+          # Create wildcard ingress for preview
+          cat <<EOF | kubectl apply -f -
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: preview-ingress
+            namespace: $NAMESPACE
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-staging
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+          spec:
+            ingressClassName: traefik
+            tls:
+              - hosts:
+                  - "pr-${PR_NUMBER}.preview.lum.tools"
+                secretName: preview-tls
+            rules:
+              - host: "pr-${PR_NUMBER}.preview.lum.tools"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: preview-router
+                          port:
+                            number: 80
+          EOF
+      
+      - name: Get Preview URL
+        id: preview-url
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PREVIEW_URL="https://pr-${PR_NUMBER}.preview.lum.tools"
+          echo "url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+      
+      - name: Comment PR with Preview URL
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const namespace = '${{ steps.namespace.outputs.namespace }}';
+            const previewUrl = '${{ steps.preview-url.outputs.url }}';
+            const services = '${{ steps.changes.outputs.services }}'.trim();
+            
+            const body = `## 🚀 Preview Environment Deployed
+            
+            | Property | Value |
+            |----------|-------|
+            | **Namespace** | \`${namespace}\` |
+            | **Preview URL** | ${previewUrl} |
+            | **Services** | ${services || 'No service changes detected'} |
+            
+            ### Access Preview
+            
+            The preview environment is available at: **${previewUrl}**
+            
+            > ⚠️ Preview environments are automatically cleaned up when the PR is closed.
+            
+            ---
+            *Deployed by GitHub Actions*`;
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(c => 
+              c.body.includes('Preview Environment Deployed') && 
+              c.user.login === 'github-actions[bot]'
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+
+  cleanup-preview:
+    name: Cleanup Preview
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30.0'
+      
+      - name: Setup kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $KUBECONFIG_PATH
+          chmod 600 $KUBECONFIG_PATH
+      
+      - name: Delete Preview Namespace
+        run: |
+          NAMESPACE="preview-pr-${{ github.event.pull_request.number }}"
+          
+          echo "Cleaning up preview namespace: $NAMESPACE"
+          kubectl delete namespace $NAMESPACE --ignore-not-found=true
+          
+          echo "Preview environment cleaned up successfully"
+      
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '## 🧹 Preview Environment Cleaned Up\n\nThe preview environment has been deleted.'
+            });

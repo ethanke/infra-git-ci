@@ -1,0 +1,55 @@
+# FluxCD Bootstrap Configuration
+# This file configures the FluxCD GitOps operator for the cluster
+
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: lum-gitops
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: main
+  secretRef:
+    name: flux-system
+  url: ssh://git@github.com/lum-tools/infra-git-ci.git
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infrastructure
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  sourceRef:
+    kind: GitRepository
+    name: lum-gitops
+  path: ./kubernetes/infrastructure
+  prune: true
+  wait: true
+  timeout: 5m0s
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infrastructure
+  interval: 10m0s
+  sourceRef:
+    kind: GitRepository
+    name: lum-gitops
+  path: ./kubernetes/apps
+  prune: true
+  wait: true
+  timeout: 10m0s
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age

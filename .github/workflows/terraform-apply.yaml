@@ -1,0 +1,106 @@
+# Terraform Apply Workflow
+# Applies infrastructure changes after PR merge
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra-git-ci/terraform/**'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "apply" to confirm infrastructure changes'
+        required: true
+
+env:
+  TF_VERSION: "1.8.0"
+  TF_WORKING_DIR: "infra-git-ci/terraform"
+
+permissions:
+  contents: read
+  id-token: write  # For OIDC authentication
+
+jobs:
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+    
+    steps:
+      - name: Validate Manual Trigger
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "apply" ]; then
+            echo "❌ Confirmation required. Please type 'apply' to proceed."
+            exit 1
+          fi
+          echo "✅ Manual apply confirmed"
+      
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Terraform Init
+        run: terraform init -input=false
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+      
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+      
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false tfplan
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+      
+      - name: Export Outputs
+        id: outputs
+        run: |
+          echo "## Terraform Outputs" >> $GITHUB_STEP_SUMMARY
+          terraform output -json > outputs.json
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat outputs.json | jq 'del(.kubeconfig)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Save Kubeconfig
+        run: |
+          terraform output -raw kubeconfig > kubeconfig.yaml
+          # Upload to secure storage (implement your secure storage here)
+          # For now, save as artifact (consider using sealed secrets or vault)
+        env:
+          TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+      
+      - name: Upload Kubeconfig Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubeconfig
+          path: ${{ env.TF_WORKING_DIR }}/kubeconfig.yaml
+          retention-days: 1
+      
+      - name: Notify Success
+        if: success()
+        run: |
+          echo "## ✅ Infrastructure Applied Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Cluster is ready. Next steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download kubeconfig artifact" >> $GITHUB_STEP_SUMMARY
+          echo "2. Bootstrap FluxCD" >> $GITHUB_STEP_SUMMARY
+          echo "3. Deploy applications" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Notify Failure
+        if: failure()
+        run: |
+          echo "## ❌ Infrastructure Apply Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the logs above for errors." >> $GITHUB_STEP_SUMMARY

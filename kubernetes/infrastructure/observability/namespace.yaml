@@ -1,0 +1,8 @@
+# Observability Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    app.kubernetes.io/part-of: lum-gitops
+    lum.tools/component: observability

@@ -1,0 +1,35 @@
+# Production environment configuration
+# Copy this file and customize for your environment
+
+# Hetzner API Token (set via TF_VAR_hcloud_token environment variable)
+# hcloud_token = "your-token-here"  # NEVER commit this!
+
+# SSH Keys (adjust paths as needed)
+ssh_public_key_file  = "~/.ssh/id_ed25519.pub"
+ssh_private_key_file = "~/.ssh/id_ed25519"
+
+# Cluster Configuration
+cluster_name    = "lum-gitops"
+network_region  = "eu-central"
+environment     = "production"
+
+# Kubernetes Configuration
+k3s_channel     = "stable"
+cni_plugin      = "cilium"
+enable_wireguard = true
+
+# Storage
+enable_longhorn = true
+
+# Ingress
+ingress_controller  = "traefik"
+enable_traefik      = true
+enable_cert_manager = true
+
+# Load Balancer
+lb_type = "lb11"
+
+# Security - IMPORTANT: Restrict these in production!
+# Set to your specific IPs/CIDRs
+firewall_ssh_source      = ["0.0.0.0/0", "::/0"]
+firewall_kube_api_source = ["0.0.0.0/0", "::/0"]

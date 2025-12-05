@@ -1,0 +1,26 @@
+# Applications Kustomization
+# All lum.tools services deployed via GitOps
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  # Core services
+  - platform/
+  - registry/
+  
+  # Frontend
+  - landing/
+  - blog-next/
+  - lum-platform-front-v2/
+  
+  # Backend services
+  - lum-growth/
+  - lum-salad/
+  - lrok/
+  - judge/
+  - stash/
+  
+  # Admin & Monitoring
+  - lum-admin/
+  - traefik-metrics-scraper/
