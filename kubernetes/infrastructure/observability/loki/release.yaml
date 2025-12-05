@@ -95,14 +95,5 @@ spec:
           cpu: 50m
           memory: 64Mi
     
-    # Monitoring
-    monitoring:
-      dashboards:
-        enabled: true
-      rules:
-        enabled: true
-      serviceMonitor:
-        enabled: true
-    
     # Chunked encoding for agent compatibility
     chunkedEncode: true
