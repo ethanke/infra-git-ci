@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frps-service
+  namespace: frp
+  labels:
+    app: frps
+  annotations:
+    description: "frp server service"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "7500"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app: frps
+  ports:
+    - name: frp-control
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
+    - name: http-vhost
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: https-vhost
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+    - name: dashboard
+      protocol: TCP
+      port: 7500
+      targetPort: 7500
+    - name: prometheus
+      protocol: TCP
+      port: 7501
+      targetPort: 7500
+    - name: tcpmux
+      protocol: TCP
+      port: 1337
+      targetPort: 1337
+    - name: plugin-admin
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: quic
+      protocol: UDP
+      port: 7001
+      targetPort: 7001
+    - name: kcp
+      protocol: UDP
+      port: 7002
+      targetPort: 7002
+    - name: udp-tunnels
+      protocol: UDP
+      port: 7003
+      targetPort: 7003
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frps-control-external
+  namespace: frp
+  labels:
+    app: frps
+  annotations:
+    description: "frp server external control and tunnel service (for clients)"
+spec:
+  type: LoadBalancer
+  selector:
+    app: frps
+  ports:
+    - name: frp-control
+      protocol: TCP
+      port: 7000
+      targetPort: 7000
+    # Minimal TCP tunnel ports for testing
+    - name: tunnel-15000
+      protocol: TCP
+      port: 15000
+      targetPort: 15000
+    - name: tunnel-15001
+      protocol: TCP
+      port: 15001
+      targetPort: 15001
+  sessionAffinity: ClientIP
+

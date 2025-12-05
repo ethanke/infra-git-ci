@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: gitea-auth
+  namespace: gitea
+spec:
+  forwardAuth:
+    address: http://platform-service.platform.svc.cluster.local:80/internal/auth/verify
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-WebAuth-User
+      - X-WebAuth-Email
+      - X-WebAuth-FullName
+      - X-WebAuth-Admin
+

@@ -1,0 +1,616 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-templates
+  namespace: gitea
+data:
+  header.tmpl: |
+    <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+    <style>
+    /* lum.tools Custom Theme for Gitea */
+    /* Applies the luminous efficiency design system */
+    
+    :root {
+      /* Brand Colors - Override Gitea defaults */
+      --color-primary: #FF8000 !important;
+      --color-primary-dark: #E67300 !important;
+      --color-primary-light: #FFA040 !important;
+      --color-primary-alpha-10: rgba(255, 128, 0, 0.1) !important;
+      --color-primary-alpha-20: rgba(255, 128, 0, 0.2) !important;
+      --color-primary-alpha-40: rgba(255, 128, 0, 0.4) !important;
+      
+      --color-accent-pink: #E94055;
+      --color-accent-violet: #8A2BE2;
+      
+      /* Keep secondary neutral - don't override with orange */
+      --color-secondary: #6c757d !important;
+      /* Keep green for status indicators - use orange ONLY for primary actions */
+      --color-green: #52C41A !important;
+      
+      /* Input focus colors - use violet instead of primary orange */
+      --color-input-focus: #8A2BE2 !important;
+      --color-input-focus-border: #8A2BE2 !important;
+      
+      /* Backgrounds */
+      --color-background: #1A1A1A !important;
+      --color-surface: #242424 !important;
+      --color-surface-hover: #2A2A2A !important;
+      --color-body: #1A1A1A !important;
+      
+      /* Text */
+      --color-text-primary: #F0F0F0 !important;
+      --color-text-secondary: #A0A0A0 !important;
+      --color-text-muted: #707070 !important;
+      --color-text: #F0F0F0 !important;
+      --color-text-light: #A0A0A0 !important;
+      
+      /* Borders - keep subtle gray, NOT orange */
+      --color-border: #383838 !important;
+      --color-border-light: #484848 !important;
+      --color-secondary-dark-2: #383838 !important;
+      
+      /* Status Colors - keep semantic colors */
+      --color-success: #52C41A !important;
+      --color-warning: #FAAD14 !important;
+      --color-error: #F5222D !important;
+      --color-info: #1890FF !important;
+      
+      /* Force input borders to use neutral color, not primary */
+      --color-input-border: #383838 !important;
+      --color-input-border-hover: #505050 !important;
+      --color-input-border-focus: #8A2BE2 !important;
+    }
+    
+    /* Header Logo Override - Target Gitea's actual logo elements */
+    .home-logo,
+    .gitea-logo,
+    img[src*="logo.svg"],
+    img[src*="logo.png"],
+    img.ui.mini.image,
+    .navbar .item img,
+    .navbar-brand img {
+      content: url("/assets/img/logo.svg") !important;
+      width: 28px !important;
+      height: 28px !important;
+    }
+    
+    /* Favicon link in head - already set above */
+    
+    /* Search input - neutral border, not orange */
+    .ui.input input,
+    .ui.search input,
+    input[type="text"],
+    input[type="search"] {
+      border: 1px solid #383838 !important;
+    }
+    
+    /* NUCLEAR OPTION: Override all input borders with max specificity */
+    /* Use 3px left border to completely cover any orange */
+    body input[class],
+    body .ui[class].input input,
+    body .ui[class].action[class].input input,
+    body .ui.action.input input[class],
+    body .ui.action.input input[name],
+    body .ui.action.input > input[type="search"],
+    body .ui.action.input > input[name="q"],
+    body form .ui.action.input > input,
+    body .ui.fluid.action.input > input,
+    .ui.action.input > input {
+      border: 1px solid #383838 !important;
+      border-color: #383838 !important;
+      border-left: 1px solid #383838 !important;
+      border-left-color: #383838 !important;
+      border-left-width: 1px !important;
+      border-right: 1px solid #383838 !important;
+      border-right-color: #383838 !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      -moz-box-shadow: none !important;
+      background-image: none !important;
+    }
+    
+    /* Also override any explicit border-left-width that might be set */
+    body .ui.action.input > input {
+      border-left-width: 1px !important;
+      border-left-style: solid !important;
+      box-shadow: inset 0 0 0 0 transparent !important;
+    }
+    
+    /* Kill any box-shadow that might be creating an inset colored line */
+    *:not(.heatmap) {
+      --shadow-inset: none !important;
+    }
+    
+    .ui.action.input > input,
+    .ui.input > input,
+    input {
+      box-shadow: inset 0 0 0 0 transparent !important;
+    }
+    
+    /* Target icon inputs which might have styled icon wrappers */
+    .ui.icon.input > i.icon,
+    .ui[class*="left icon"].input > i.icon,
+    .ui.icon.input > .icon,
+    .ui[class*="left icon"].input > .icon,
+    .ui.action.input .icon,
+    .ui.action.input i {
+      border: none !important;
+      border-color: #383838 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    
+    /* Make sure the input wrapper itself doesn't have colored borders */
+    .ui.action.input,
+    .ui.fluid.action.input,
+    .ui.icon.input,
+    form .ui.action.input {
+      border: none !important;
+      box-shadow: none !important;
+      /* SCOPED primary color override - use neutral for inputs */
+      --color-primary: #383838 !important;
+    }
+    
+    /* Also scope it on form and input elements */
+    form,
+    .ui.action.input,
+    .ui.input,
+    input {
+      --color-primary: #383838 !important;
+    }
+    
+    /* But keep orange for buttons */
+    .ui.button,
+    button,
+    .ui.primary.button {
+      --color-primary: #FF8000 !important;
+    }
+    
+    /* CRITICAL FIX: Override the Gitea/Fomantic specific rules for action input focus states */
+    /* These rules in input.css use --color-primary for focused action input borders */
+    .ui.action.input:not([class*="left action"]) > input:focus,
+    .ui.action.input:not([class*="left action"]) > input:focus:hover {
+      border-right-color: #8A2BE2 !important;
+      border-color: #8A2BE2 !important;
+    }
+    
+    .ui.action.input:not([class*="left action"]) > input:focus + .button,
+    .ui.action.input:not([class*="left action"]) > input:focus + .button:hover,
+    .ui.action.input:not([class*="left action"]) > input:focus + .ui.button,
+    .ui.action.input:not([class*="left action"]) > input:focus + .ui.button:hover,
+    .ui.action.input:not([class*="left action"]) > input:focus + i.icon + .button,
+    .ui.action.input:not([class*="left action"]) > input:focus + i.icon + .button:hover {
+      border-left-color: #8A2BE2 !important;
+    }
+    
+    /* Also override input focus border globally to use violet, not primary orange */
+    .ui.input > input:focus,
+    .ui.input.focus > input {
+      border-color: #8A2BE2 !important;
+    }
+    
+    /* Remove any :before/:after pseudo elements that might add orange border */
+    .ui.action.input::before,
+    .ui.action.input::after,
+    .ui.action.input input::before,
+    .ui.action.input input::after,
+    .ui.input::before,
+    .ui.input::after {
+      display: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    
+    .ui.input input:focus,
+    .ui.search input:focus {
+      border-color: #8A2BE2 !important;
+      box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2) !important;
+    }
+    
+    /* Contribution/Heatmap Graph - Orange theme */
+    .heatmap-color-0, .contrib-level-0 { background-color: #2A2A2A !important; fill: #2A2A2A !important; }
+    .heatmap-color-1, .contrib-level-1 { background-color: rgba(255, 128, 0, 0.25) !important; fill: rgba(255, 128, 0, 0.25) !important; }
+    .heatmap-color-2, .contrib-level-2 { background-color: rgba(255, 128, 0, 0.5) !important; fill: rgba(255, 128, 0, 0.5) !important; }
+    .heatmap-color-3, .contrib-level-3 { background-color: rgba(255, 128, 0, 0.75) !important; fill: rgba(255, 128, 0, 0.75) !important; }
+    .heatmap-color-4, .contrib-level-4, .heatmap-color-5 { background-color: #FF8000 !important; fill: #FF8000 !important; }
+    
+    /* Heatmap legend - individual color blocks between Less and More */
+    .heatmap .legend span:nth-child(2) { background-color: rgba(255, 128, 0, 0.15) !important; }
+    .heatmap .legend span:nth-child(3) { background-color: rgba(255, 128, 0, 0.35) !important; }
+    .heatmap .legend span:nth-child(4) { background-color: rgba(255, 128, 0, 0.55) !important; }
+    .heatmap .legend span:nth-child(5) { background-color: rgba(255, 128, 0, 0.75) !important; }
+    .heatmap .legend span:nth-child(6) { background-color: #FF8000 !important; }
+    
+    /* Target all spans in the heatmap legend area */
+    .flex-text-inline span[style*="background-color"],
+    span[style*="#9be9a8"], span[style*="#40c463"], 
+    span[style*="#30a14e"], span[style*="#216e39"],
+    span[style*="rgb(155, 233, 168)"], span[style*="rgb(64, 196, 99)"],
+    span[style*="rgb(48, 161, 78)"], span[style*="rgb(33, 110, 57)"] {
+      background-color: #FF8000 !important;
+    }
+    
+    /* Heatmap legend colors - override ALL green shades */
+    .heatmap-legend-block,
+    .contrib-legend li,
+    .legend-block,
+    .activity-overview-box .legend span,
+    [class*="contrib-"] span,
+    .heatmap span[style*="background"],
+    .contrib-legend span {
+      background-color: #FF8000 !important;
+    }
+    
+    /* Force heatmap legend gradient */
+    .heatmap .legend,
+    .activity-overview-box .legend,
+    .contrib-legend {
+      background: linear-gradient(to right, #2A2A2A, rgba(255, 128, 0, 0.25), rgba(255, 128, 0, 0.5), rgba(255, 128, 0, 0.75), #FF8000) !important;
+    }
+    
+    /* Notification badge - change from green to orange */
+    .ui.label.circular,
+    .notification_count,
+    .notification-count,
+    .badge,
+    .ui.circular.label,
+    .ui.green.label,
+    .ui.teal.label,
+    a .notification_count,
+    .item .notification_count,
+    span.notification_count,
+    .ui.label[style*="background-color: var(--color-green)"],
+    .ui.green.labels .label,
+    .flex-text-inline .ui.label {
+      background-color: #FF8000 !important;
+      color: white !important;
+    }
+    
+    /* SVG heatmap squares */
+    .activity-bar rect[fill="#216e39"],
+    .activity-bar rect[fill="#30a14e"],
+    .activity-bar rect[fill="#40c463"],
+    .activity-bar rect[fill="#9be9a8"],
+    rect.ContributionCalendar-day[data-level="1"],
+    rect.ContributionCalendar-day[data-level="2"],
+    rect.ContributionCalendar-day[data-level="3"],
+    rect.ContributionCalendar-day[data-level="4"] {
+      fill: #FF8000 !important;
+    }
+    
+    /* Contribution bar colors */
+    .flex-item-main .activity-bar-graph-new rect,
+    .activity-bar rect,
+    .heatmap rect,
+    svg rect[fill*="green"],
+    svg rect[fill*="#2"],
+    svg rect[fill*="#3"],
+    svg rect[fill*="#4"],
+    svg rect[fill*="#9"] {
+      fill: #FF8000 !important;
+    }
+    
+    /* Green buttons -> Orange */
+    .ui.green.button,
+    .ui.green.buttons .button,
+    .ui.positive.button,
+    .ui.green.label {
+      background-color: #FF8000 !important;
+      color: white !important;
+    }
+    
+    .ui.green.button:hover,
+    .ui.positive.button:hover {
+      background-color: #FFA040 !important;
+    }
+    
+    /* Tab buttons - active state */
+    .ui.tabular.menu .active.item,
+    .ui.secondary.pointing.menu .active.item,
+    .ui.pointing.secondary.menu .active.item {
+      color: #FF8000 !important;
+      border-color: #FF8000 !important;
+    }
+    
+    /* Segment tabs */
+    .ui.top.attached.tabular.menu .active.item {
+      background-color: #242424 !important;
+      border-color: #383838 !important;
+      color: #FF8000 !important;
+    }
+    
+    /* Icon colors - repo icons should be subtle */
+    .svg.octicon-repo,
+    .octicon-repo {
+      color: #A0A0A0 !important;
+      fill: #A0A0A0 !important;
+    }
+    
+    /* Only color important action icons orange */
+    .svg.octicon-star,
+    .svg.octicon-git-branch {
+      color: #FF8000 !important;
+      fill: #FF8000 !important;
+    }
+    
+    /* Base Theme Override */
+    body {
+      background-color: #1A1A1A !important;
+      color: #F0F0F0 !important;
+    }
+    
+    /* Header/Navigation */
+    .ui.secondary.menu,
+    .full.height > .navbar,
+    #navbar,
+    nav.navbar {
+      background-color: #242424 !important;
+      border-bottom: 1px solid #383838 !important;
+    }
+    
+    /* Primary Buttons */
+    .ui.primary.button,
+    .ui.primary.buttons .button {
+      background-color: #FF8000 !important;
+      color: white !important;
+    }
+    
+    .ui.primary.button:hover {
+      background-color: #FFA040 !important;
+      box-shadow: 0 0 12px rgba(255, 128, 0, 0.4) !important;
+    }
+    
+    /* Cards & Containers */
+    .ui.segment,
+    .ui.attached.segment {
+      background-color: #242424 !important;
+      border-color: #383838 !important;
+    }
+    
+    /* Dropdown menus */
+    .ui.dropdown .menu,
+    .tippy-box,
+    .ui.flowing.popup {
+      background-color: #242424 !important;
+      border: 1px solid #383838 !important;
+    }
+    
+    .ui.dropdown .menu .item {
+      color: #F0F0F0 !important;
+    }
+    
+    .ui.dropdown .menu .item:hover {
+      background-color: #2A2A2A !important;
+    }
+    
+    /* Form inputs */
+    .ui.input input,
+    .ui.form input,
+    .ui.form textarea,
+    .ui.search input {
+      background-color: #1A1A1A !important;
+      color: #F0F0F0 !important;
+      border-color: #383838 !important;
+    }
+    
+    .ui.input input:focus,
+    .ui.form input:focus {
+      border-color: #8A2BE2 !important;
+      box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2) !important;
+    }
+    
+    /* Links - only primary links orange, not all text */
+    a:not(.ui):not(.item):not(.header) {
+      color: #FF8000 !important;
+    }
+    
+    a:not(.ui):not(.item):not(.header):hover {
+      color: #FFA040 !important;
+    }
+    
+    /* Nav links should be white/gray */
+    .navbar a,
+    .ui.menu a.item,
+    .ui.secondary.menu a {
+      color: #F0F0F0 !important;
+    }
+    
+    .navbar a:hover,
+    .ui.menu a.item:hover {
+      color: #FF8000 !important;
+    }
+    
+    /* Footer */
+    footer, .page-footer {
+      background-color: #242424 !important;
+      border-top: 1px solid #383838 !important;
+    }
+    
+    /* Modals */
+    .ui.modal {
+      background-color: #242424 !important;
+    }
+    
+    .ui.modal > .header {
+      background-color: #1A1A1A !important;
+      color: #F0F0F0 !important;
+      border-bottom-color: #383838 !important;
+    }
+    
+    .ui.modal > .content {
+      background-color: #242424 !important;
+    }
+    
+    .ui.modal > .actions {
+      background-color: #1A1A1A !important;
+      border-top-color: #383838 !important;
+    }
+    
+    /* Fix search box orange border - override any primary color applied */
+    /* Global input styling - neutral borders */
+    input,
+    textarea,
+    select,
+    .ui.input input,
+    .ui.action.input input,
+    .ui.search input,
+    .ui.action.input:not([class*="left"]) > input,
+    [type="search"],
+    input[name="q"],
+    input[placeholder*="Search"] {
+      border: 1px solid #383838 !important;
+      border-color: #383838 !important;
+      border-left: 1px solid #383838 !important;
+      border-right: 1px solid #383838 !important;
+      border-top: 1px solid #383838 !important;
+      border-bottom: 1px solid #383838 !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Completely nuke any left-border based indicator styling */
+    .ui.action.input input {
+      border-left-width: 1px !important;
+      border-left-style: solid !important;
+      border-left-color: #383838 !important;
+    }
+    
+    /* Focus state - use violet accent, not primary orange */
+    input:focus,
+    textarea:focus,
+    select:focus,
+    .ui.input input:focus,
+    .ui.action.input input:focus,
+    .ui.input.focus input,
+    .ui.action.input.focus input,
+    .ui.search input:focus {
+      border-color: #8A2BE2 !important;
+      box-shadow: 0 0 0 1px rgba(138, 43, 226, 0.3) !important;
+      outline: none !important;
+    }
+    
+    /* Override action input left border that might be using primary */
+    .ui.action.input > input {
+      border-left-color: #383838 !important;
+    }
+    
+    .ui.action.input > input:focus {
+      border-left-color: #8A2BE2 !important;
+    }
+    /* Force search button to not be orange - use dark styling */
+    .ui.action.input > button,
+    .ui.action.input > .button,
+    button[type="submit"].ui.button,
+    .ui.button.primary,
+    .ui.action.input .button,
+    form .ui.action.input button,
+    form .ui.action.input .button {
+      background-color: #2D2D2D !important;
+      border: 1px solid #383838 !important;
+      border-color: #383838 !important;
+      border-left-color: #383838 !important;
+      color: #E0E0E0 !important;
+    }
+    
+    .ui.action.input > button:hover,
+    .ui.action.input > .button:hover {
+      background-color: #383838 !important;
+    }
+    
+    /* Make sure there's no weird border styling from action input */
+    .ui.action.input:not([class*="left"]) > input {
+      border-right: 1px solid #383838 !important;
+    }
+    
+    /* Target explore page search specifically */
+    form[action="/explore/repos"] .ui.action.input > input,
+    form[action="/explore/users"] .ui.action.input > input,
+    form[action="/explore/organizations"] .ui.action.input > input {
+      border: 1px solid #383838 !important;
+    }
+    </style>
+    <script>
+    /* Replace Gitea logo and fix orange styling */
+    document.addEventListener('DOMContentLoaded', function() {
+      // Replace navbar logo
+      const logos = document.querySelectorAll('.navbar img, [href="/"] img, .home-logo img');
+      logos.forEach(function(img) {
+        if (img && img.src) {
+          img.src = '/assets/img/logo.svg';
+          img.style.width = '28px';
+          img.style.height = '28px';
+        }
+      });
+      
+      // Also try targeting by class/id
+      const miniImages = document.querySelectorAll('img.ui.mini.image');
+      miniImages.forEach(function(img) {
+        img.src = '/assets/img/logo.svg';
+        img.style.width = '28px';
+        img.style.height = '28px';
+      });
+      
+      // Fix orange border on action inputs - target all search inputs AGGRESSIVELY
+      const fixInputBorders = function() {
+        // Target ALL inputs in action containers
+        const allInputs = document.querySelectorAll('input, .ui.input input, .ui.action.input input, input[name="q"], input[type="search"]');
+        allInputs.forEach(function(input) {
+          input.style.setProperty('border', '1px solid #383838', 'important');
+          input.style.setProperty('border-color', '#383838', 'important');
+          input.style.setProperty('border-left-color', '#383838', 'important');
+          input.style.setProperty('border-left-width', '1px', 'important');
+          input.style.setProperty('border-right-color', '#383838', 'important');
+          input.style.setProperty('box-shadow', 'none', 'important');
+          input.style.setProperty('outline', 'none', 'important');
+        });
+        
+        // Also target the action input wrapper itself
+        const actionInputWrappers = document.querySelectorAll('.ui.action.input, .ui.fluid.action.input, .ui.input');
+        actionInputWrappers.forEach(function(wrapper) {
+          wrapper.style.setProperty('border', 'none', 'important');
+          wrapper.style.setProperty('box-shadow', 'none', 'important');
+          // Check for any children that might have borders
+          var children = wrapper.children;
+          for (var i = 0; i < children.length; i++) {
+            if (children[i].tagName === 'I' || children[i].classList.contains('icon')) {
+              children[i].style.setProperty('border', 'none', 'important');
+              children[i].style.setProperty('background', 'transparent', 'important');
+            }
+          }
+        });
+      };
+      
+      // Run immediately
+      fixInputBorders();
+      // And also after short delays to override any late-loading JS
+      setTimeout(fixInputBorders, 50);
+      setTimeout(fixInputBorders, 100);
+      setTimeout(fixInputBorders, 250);
+      setTimeout(fixInputBorders, 500);
+      setTimeout(fixInputBorders, 1000);
+      
+      // Watch for DOM changes and reapply
+      const observer = new MutationObserver(function(mutations) {
+        fixInputBorders();
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+      
+      // Fix search buttons
+      const searchButtons = document.querySelectorAll('.ui.action.input button, .ui.action.input .button');
+      searchButtons.forEach(function(btn) {
+        btn.style.backgroundColor = '#2D2D2D';
+        btn.style.borderColor = '#383838';
+        btn.style.color = '#E0E0E0';
+      });
+    });
+    </script>
+  extra_links_footer.tmpl: |
+    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #383838; text-align: center;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+        <span style="color: #A0A0A0; font-size: 14px;">Powered by</span>
+        <span style="background: linear-gradient(135deg, #FF8000 0%, #E94055 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; font-size: 16px;">lum.tools</span>
+      </div>
+      <p style="color: #707070; font-size: 12px; margin: 0;">
+        Unified authentication powered by <a href="https://platform.lum.tools" style="color: #FF8000;">platform.lum.tools</a>
+      </p>
+    </div>

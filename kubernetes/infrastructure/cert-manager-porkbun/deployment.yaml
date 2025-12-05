@@ -1,0 +1,248 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-webhook-porkbun
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+---
+# Grant the webhook permission to read the ConfigMap containing the Kubernetes
+# apiserver's requestheader-ca-certificate.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cert-manager-webhook-porkbun:webhook-authentication-reader
+  namespace: kube-system
+  labels:
+    app: cert-manager-webhook-porkbun
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: extension-apiserver-authentication-reader
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cert-manager-webhook-porkbun
+    namespace: cert-manager
+---
+# apiserver gets the auth-delegator role to delegate auth decisions to
+# the core apiserver
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-webhook-porkbun:auth-delegator
+  labels:
+    app: cert-manager-webhook-porkbun
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cert-manager-webhook-porkbun
+    namespace: cert-manager
+---
+# Grant cert-manager permission to validate using our apiserver
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-webhook-porkbun:domain-solver
+  labels:
+    app: cert-manager-webhook-porkbun
+rules:
+  - apiGroups:
+      - acme.porkbun.com
+    resources:
+      - '*'
+    verbs:
+      - 'create'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-webhook-porkbun:domain-solver
+  labels:
+    app: cert-manager-webhook-porkbun
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-manager-webhook-porkbun:domain-solver
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: cert-manager
+    namespace: cert-manager
+---
+# Allow reading secrets in cert-manager namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cert-manager-webhook-porkbun:secret-reader
+  namespace: cert-manager
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cert-manager-webhook-porkbun:secret-reader
+  namespace: cert-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: cert-manager-webhook-porkbun:secret-reader
+subjects:
+- kind: ServiceAccount
+  name: cert-manager-webhook-porkbun
+  namespace: cert-manager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cert-manager-webhook-porkbun
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: https
+    protocol: TCP
+    name: https
+  selector:
+    app: cert-manager-webhook-porkbun
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cert-manager-webhook-porkbun
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cert-manager-webhook-porkbun
+  template:
+    metadata:
+      labels:
+        app: cert-manager-webhook-porkbun
+    spec:
+      serviceAccountName: cert-manager-webhook-porkbun
+      containers:
+      - name: webhook
+        image: ghcr.io/mdonoughe/porkbun-webhook:0.1.5
+        imagePullPolicy: IfNotPresent
+        args:
+        - --tls-cert-file=/tls/tls.crt
+        - --tls-private-key-file=/tls/tls.key
+        - --secure-port=8443
+        env:
+        - name: GROUP_NAME
+          value: "acme.porkbun.com"
+        ports:
+        - name: https
+          containerPort: 8443
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: https
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: https
+        volumeMounts:
+        - name: certs
+          mountPath: /tls
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          secretName: cert-manager-webhook-porkbun-webhook-tls
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1alpha1.acme.porkbun.com
+  labels:
+    app: cert-manager-webhook-porkbun
+  annotations:
+    cert-manager.io/inject-ca-from: "cert-manager/cert-manager-webhook-porkbun-webhook-tls"
+spec:
+  group: acme.porkbun.com
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: cert-manager-webhook-porkbun
+    namespace: cert-manager
+  version: v1alpha1
+---
+# Generate a CA Certificate used to sign certificates for the webhook
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-webhook-porkbun-ca
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  secretName: cert-manager-webhook-porkbun-ca
+  duration: 43800h # 5y
+  issuerRef:
+    name: cert-manager-webhook-porkbun-selfsign
+    kind: Issuer
+  commonName: "ca.cert-manager-webhook-porkbun.cert-manager"
+  isCA: true
+---
+# Create a selfsigned Issuer, in order to create a root CA certificate for
+# signing webhook serving certificates
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cert-manager-webhook-porkbun-selfsign
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  selfSigned: {}
+---
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cert-manager-webhook-porkbun-ca
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  ca:
+    secretName: cert-manager-webhook-porkbun-ca
+---
+# Finally, generate a serving certificate for the webhook to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-webhook-porkbun-webhook-tls
+  namespace: cert-manager
+  labels:
+    app: cert-manager-webhook-porkbun
+spec:
+  secretName: cert-manager-webhook-porkbun-webhook-tls
+  duration: 8760h # 1y
+  issuerRef:
+    name: cert-manager-webhook-porkbun-ca
+    kind: Issuer
+  dnsNames:
+  - cert-manager-webhook-porkbun
+  - cert-manager-webhook-porkbun.cert-manager
+  - cert-manager-webhook-porkbun.cert-manager.svc
+

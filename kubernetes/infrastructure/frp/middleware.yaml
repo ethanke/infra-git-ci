@@ -1,0 +1,30 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: frp-headers
+  namespace: frp
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
+    customResponseHeaders:
+      X-Frame-Options: "SAMEORIGIN"
+      X-Content-Type-Options: "nosniff"
+      Referrer-Policy: "strict-origin-when-cross-origin"
+    sslRedirect: true
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: frp-buffering
+  namespace: frp
+spec:
+  buffering:
+    maxRequestBodyBytes: 104857600  # 100MB
+    memRequestBodyBytes: 10485760   # 10MB
+    maxResponseBodyBytes: 104857600  # 100MB
+    memResponseBodyBytes: 10485760   # 10MB
+

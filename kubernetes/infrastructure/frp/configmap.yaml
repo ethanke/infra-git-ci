@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frps-config
+  namespace: frp
+data:
+  frps.toml: |
+    # frp server configuration
+    bindPort = 7000
+    
+    # HTTP virtual host port for subdomain routing
+    vhostHTTPPort = 8080
+    vhostHTTPSPort = 8443
+    
+    # Subdomain configuration
+    subDomainHost = "t.lum.tools"
+    
+    # Authentication is now handled by plugin
+    # Users must use their platform API keys
+    
+    # Dashboard for monitoring (exposed on localhost for plugin access)
+    webServer.addr = "127.0.0.1"
+    webServer.port = 7400
+    webServer.user = "admin"
+    webServer.password = "frp-dashboard-secure-2025"
+    
+    # Enable Prometheus metrics
+    enablePrometheus = true
+    prometheusPort = 7500
+    
+    # Logging
+    log.level = "info"
+    log.maxDays = 7
+    
+    # Connection pool
+    transport.maxPoolCount = 10
+    
+    # TCP multiplexing for HTTP CONNECT
+    tcpMuxHTTPConnectPort = 1337
+    
+    # UDP port binding for UDP tunnels
+    bindUDPPort = 7003
+    
+    # QUIC protocol support
+    quicBindPort = 7001
+    
+    # KCP protocol support
+    kcpBindPort = 7002
+    
+    # Allowed port ranges for TCP/UDP tunnels
+    allowPorts = [
+      { start = 10000, end = 60000 }
+    ]
+    
+    # Server plugins for authentication and tracking
+    [[httpPlugins]]
+    name = "lum-auth"
+    addr = "127.0.0.1:9000"
+    path = "/handler"
+    ops = ["Login"]
+    
+    [[httpPlugins]]
+    name = "lum-proxy-manager"
+    addr = "127.0.0.1:9000"
+    path = "/handler"
+    ops = ["NewProxy", "CloseProxy", "Ping"]
+

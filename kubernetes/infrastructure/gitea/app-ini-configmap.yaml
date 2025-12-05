@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-config
+  namespace: gitea
+data:
+  app.ini: |
+    APP_NAME = lum.tools Git
+    RUN_USER = git
+    RUN_MODE = prod
+
+    [server]
+    DOMAIN = git.lum.tools
+    HTTP_ADDR = 0.0.0.0
+    HTTP_PORT = 3000
+    ROOT_URL = https://git.lum.tools/
+    DISABLE_SSH = false
+    SSH_DOMAIN = git.lum.tools
+    SSH_PORT = 22
+    SSH_LISTEN_PORT = 22
+    LOGO_URL = https://platform.lum.tools/static/img/logo.svg
+
+    [database]
+    DB_TYPE = postgres
+    HOST = postgres.production-db.svc.cluster.local:5432
+    NAME = gitea
+    USER = gitea
+    SSL_MODE = disable
+
+    [repository]
+    ROOT = /var/lib/gitea/data/gitea/repositories
+
+    [repository.upload]
+    ENABLED = true
+    TEMP_PATH = /var/lib/gitea/data/gitea/uploads
+    MAX_SIZE = 50
+    MAX_FILES = 5
+
+    [picture]
+    AVATAR_UPLOAD_PATH = /var/lib/gitea/data/gitea/avatars
+    REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/gitea/repo-avatars
+
+    [attachment]
+    PATH = /var/lib/gitea/data/gitea/attachments
+    MAX_SIZE = 100
+    ENABLED = true
+
+    [log]
+    MODE = console
+    LEVEL = Info
+
+    [session]
+    PROVIDER = file
+    PROVIDER_CONFIG = /var/lib/gitea/data/gitea/sessions
+
+    [cache]
+    ADAPTER = memory
+
+    [service]
+    ENABLE_REVERSE_PROXY_AUTHENTICATION = true
+    ENABLE_REVERSE_PROXY_AUTO_REGISTRATION = true
+    ENABLE_REVERSE_PROXY_EMAIL = true
+    ENABLE_REVERSE_PROXY_FULL_NAME = true
+    REVERSE_PROXY_AUTHENTICATION_ADMIN = X-WebAuth-Admin
+
+    [security]
+    INSTALL_LOCK = true
+    SECRET_KEY = 061c62c895bd2f30e0e3d75092587d40b7209e260b96f8f27e27665fa250d13b
+    INTERNAL_TOKEN = ad77a6c4e109c6b7dbc8c0a3b891023708e2f147e3d180da7303891a077663ff
+    REVERSE_PROXY_AUTHENTICATION_USER = X-WebAuth-User
+    REVERSE_PROXY_AUTHENTICATION_EMAIL = X-WebAuth-Email
+    REVERSE_PROXY_AUTHENTICATION_FULL_NAME = X-WebAuth-Name
+
+    [ui]
+    THEMES = gitea,arc-green,lum-tools
+    DEFAULT_THEME = lum-tools
+
+    [oauth2]
+    ENABLE = true
+
+    [actions]
+    ENABLED = true
+    DEFAULT_ACTIONS_URL = https://git.lum.tools

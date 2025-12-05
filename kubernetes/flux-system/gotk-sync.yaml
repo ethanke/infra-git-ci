@@ -10,9 +10,7 @@ spec:
   interval: 1m0s
   ref:
     branch: main
-  secretRef:
-    name: flux-system
-  url: ssh://git@github.com/ethanke/infra-git-ci.git
+  url: https://github.com/ethanke/infra-git-ci.git
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      initContainers:
+      - name: init-config
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - |
+          mkdir -p /etc-gitea
+          cp /config-template/app.ini /etc-gitea/app.ini
+          chown -R 1000:1000 /etc-gitea
+        volumeMounts:
+        - name: gitea-config-dir
+          mountPath: /etc-gitea
+        - name: gitea-config-template
+          mountPath: /config-template
+      - name: cleanup-legacy-css
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - |
+          rm -rf /var/lib/gitea/custom/public/css
+        volumeMounts:
+        - name: gitea-data
+          mountPath: /var/lib/gitea
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.21-rootless
+        ports:
+        - containerPort: 3000
+        - containerPort: 2222
+        volumeMounts:
+        - name: gitea-data
+          mountPath: /var/lib/gitea
+        - name: gitea-config-dir
+          mountPath: /etc/gitea
+        - name: custom-theme
+          mountPath: /var/lib/gitea/custom/public/assets/css
+        - name: custom-head
+          mountPath: /var/lib/gitea/custom/templates/custom
+        - name: custom-img
+          mountPath: /var/lib/gitea/custom/public/assets/img
+        env:
+        - name: GITEA_WORK_DIR
+          value: "/var/lib/gitea"
+        - name: GITEA_CUSTOM
+          value: "/var/lib/gitea/custom"
+        - name: GITEA__database__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: gitea-secrets
+              key: DB_PASSWD
+      volumes:
+      - name: gitea-data
+        persistentVolumeClaim:
+          claimName: gitea-data-pvc
+      - name: gitea-config-dir
+        emptyDir: {}
+      - name: gitea-config-template
+        configMap:
+          name: gitea-config
+      - name: custom-theme
+        configMap:
+          name: gitea-custom-theme
+      - name: custom-head
+        configMap:
+          name: gitea-templates
+      - name: custom-img
+        configMap:
+          name: gitea-custom-img

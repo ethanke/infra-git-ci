@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-custom-assets
+  namespace: gitea
+data:
+  theme-lum.css: |
+$(cat /home/ethan/Work/lum.tools/infra/k8s/gitea/custom-theme.css)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-branding
+  namespace: gitea
+data:
+  # Custom footer with lum.tools branding
+  extra_links_footer.tmpl: |
+    <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); text-align: center;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+        <span style="color: var(--color-text-secondary); font-size: 14px;">Powered by</span>
+        <span style="background: linear-gradient(135deg, #FF8000 0%, #E94055 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; font-size: 16px;">lum.tools</span>
+      </div>
+      <p style="color: var(--color-text-muted); font-size: 12px; margin: 0;">
+        Unified authentication powered by <a href="https://platform.lum.tools" style="color: var(--color-primary);">platform.lum.tools</a>
+      </p>
+    </div>
+  
+  # Custom header logo/branding
+  custom_header.tmpl: |
+    <style>
+      .ui.top.secondary.menu .item.brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 18px;
+        background: linear-gradient(135deg, #FF8000 0%, #E94055 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .ui.top.secondary.menu .item.brand:hover {
+        background: linear-gradient(135deg, #FFA040 0%, #FF5070 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    </style>

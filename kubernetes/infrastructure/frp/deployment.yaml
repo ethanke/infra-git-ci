@@ -1,0 +1,182 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frps-deployment
+  namespace: frp
+  labels:
+    app: frps
+    version: "0.65.0"
+  annotations:
+    description: "frp server for tunnel services"
+spec:
+  # FRP maintains tunnel state in memory and doesn't support clustering
+  # Multiple replicas cause 404 errors when traffic is load-balanced to pod
+  # that doesn't have the tunnel registered
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: frps
+  template:
+    metadata:
+      labels:
+        app: frps
+        version: "0.65.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "7500"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - frps
+                topologyKey: kubernetes.io/hostname
+      
+      terminationGracePeriodSeconds: 30
+      
+      imagePullSecrets:
+        - name: registry-creds-new
+      
+      initContainers:
+        - name: plugin-installer
+          image: registry.lum.tools/frp-auth-plugin:v1.5.0
+          imagePullPolicy: Always
+          command: ["cp", "/usr/local/bin/lum-auth-plugin", "/plugins/"]
+          volumeMounts:
+            - name: plugins
+              mountPath: /plugins
+
+      containers:
+        # FRP Authentication Plugin Sidecar
+        - name: frp-auth-plugin
+          image: registry.lum.tools/frp-auth-plugin:v1.5.0
+          imagePullPolicy: Always
+          
+          command: ["/usr/local/bin/lum-auth-plugin"]
+          args:
+            - "--config"
+            - "/etc/frp-plugin/config.json"
+            - "--http"
+            - "0.0.0.0:9000"
+          
+          volumeMounts:
+            - name: plugin-config
+              mountPath: /etc/frp-plugin
+              readOnly: true
+          
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          
+          # Temporarily disabled probes for debugging
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 9000
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 15
+          #   failureThreshold: 5
+          
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: 9000
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 10
+          #   failureThreshold: 3
+        
+        # FRP Server
+        - name: frps
+          image: fatedier/frps:v0.65.0
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 7000
+              name: frp-control
+              protocol: TCP
+            - containerPort: 8080
+              name: http-vhost
+              protocol: TCP
+            - containerPort: 8443
+              name: https-vhost
+              protocol: TCP
+            - containerPort: 7500
+              name: dashboard
+              protocol: TCP
+            - containerPort: 1337
+              name: tcpmux
+              protocol: TCP
+          
+          env:
+            - name: FRP_DASHBOARD_USER
+              valueFrom:
+                secretKeyRef:
+                  name: frp-secrets
+                  key: dashboard-user
+            - name: FRP_DASHBOARD_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: frp-secrets
+                  key: dashboard-password
+          
+          volumeMounts:
+            - name: config
+              mountPath: /etc/frp
+              readOnly: true
+          
+          command: ["/usr/bin/frps"]
+          args:
+            - "-c"
+            - "/etc/frp/frps.toml"
+          
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          
+          livenessProbe:
+            tcpSocket:
+              port: 7000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          
+          readinessProbe:
+            tcpSocket:
+              port: 7000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 2
+      
+      volumes:
+        - name: config
+          configMap:
+            name: frps-config
+        - name: plugins
+          emptyDir: {}
+        - name: plugin-config
+          secret:
+            secretName: frp-plugin-config
+

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.21-rootless
+        ports:
+        - containerPort: 3000
+        - containerPort: 2222
+        volumeMounts:
+        - name: gitea-data
+          mountPath: /var/lib/gitea
+        - name: custom-theme
+          mountPath: /var/lib/gitea/custom/public/css
+        env:
+        - name: GITEA__database__DB_TYPE
+          value: "postgres"
+        - name: GITEA__database__HOST
+          value: "postgres-service.production-db.svc.cluster.local:5432"
+        - name: GITEA__database__NAME
+          value: "gitea"
+        - name: GITEA__database__USER
+          value: "gitea"
+        - name: GITEA__database__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: gitea-secrets
+              key: DB_PASSWD
+        - name: GITEA__service__ENABLE_REVERSE_PROXY_AUTHENTICATION
+          value: "true"
+        - name: GITEA__service__ENABLE_REVERSE_PROXY_AUTO_REGISTRATION
+          value: "true"
+        - name: GITEA__service__ENABLE_REVERSE_PROXY_EMAIL
+          value: "true"
+        - name: GITEA__service__REVERSE_PROXY_AUTHENTICATION_USER
+          value: "X-WebAuth-User"
+        - name: GITEA__service__REVERSE_PROXY_AUTHENTICATION_EMAIL
+          value: "X-WebAuth-Email"
+        - name: GITEA__service__REVERSE_PROXY_AUTHENTICATION_FULL_NAME
+          value: "X-WebAuth-Name"
+        - name: GITEA__ui__THEMES
+          value: "gitea,arc-green,lum"
+        - name: GITEA__ui__DEFAULT_THEME
+          value: "lum"
+        - name: GITEA__server__APP_NAME
+          value: "lum.tools Git"
+        - name: GITEA__server__LOGO_URL
+          value: "https://platform.lum.tools/static/img/logo.svg"
+      volumes:
+      - name: gitea-data
+        persistentVolumeClaim:
+          claimName: gitea-data-pvc
+      - name: custom-theme
+        configMap:
+          name: gitea-custom-theme

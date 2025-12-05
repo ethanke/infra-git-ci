@@ -1,0 +1,9 @@
+# cert-manager Porkbun Webhook
+# Enables DNS-01 challenges for wildcard certificates
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - credentials-secret.yaml

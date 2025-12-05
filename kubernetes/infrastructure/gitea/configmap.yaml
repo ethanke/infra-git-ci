@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-config
+  namespace: gitea
+data:
+  app.ini: |
+    APP_NAME = Gitea
+    RUN_USER = git
+    RUN_MODE = prod
+    
+    [server]
+    DOMAIN = git.lum.tools
+    HTTP_ADDR = 0.0.0.0
+    HTTP_PORT = 3000
+    ROOT_URL = https://git.lum.tools/
+    DISABLE_SSH = false
+    SSH_DOMAIN = git.lum.tools
+    SSH_PORT = 22
+    SSH_LISTEN_PORT = 22
+    
+    [database]
+    DB_TYPE = postgres
+    HOST = postgres.production-db.svc.cluster.local:5432
+    NAME = gitea
+    USER = gitea
+    PASSWD = 
+    SSL_MODE = disable
+    
+    [repository]
+    ROOT = /data/gitea/repositories
+    
+    [repository.upload]
+    ENABLED = true
+    TEMP_PATH = /data/gitea/uploads
+    MAX_SIZE = 50
+    MAX_FILES = 5
+    
+    [picture]
+    AVATAR_UPLOAD_PATH = /data/gitea/avatars
+    REPOSITORY_AVATAR_UPLOAD_PATH = /data/gitea/repo-avatars
+    
+    [attachment]
+    PATH = /data/gitea/attachments
+    MAX_SIZE = 100
+    ENABLED = true
+    
+    [log]
+    MODE = console
+    LEVEL = Info
+    
+    [session]
+    PROVIDER = file
+    PROVIDER_CONFIG = /data/gitea/sessions
+    
+    [cache]
+    ADAPTER = memory
+    
+    [service]
+    ENABLE_REVERSE_PROXY_AUTHENTICATION = true
+    ENABLE_REVERSE_PROXY_AUTO_REGISTRATION = true
+    ENABLE_REVERSE_PROXY_EMAIL = true
+
+    [security]
+    INSTALL_LOCK = true
+    REVERSE_PROXY_AUTHENTICATION_USER = X-WebAuth-User
+    REVERSE_PROXY_AUTHENTICATION_EMAIL = X-WebAuth-Email
+    
+    [oauth2]
+    ENABLE = true
+    
+    [actions]
+    ENABLED = true
+    DEFAULT_ACTIONS_URL = https://git.lum.tools
+

@@ -14,6 +14,12 @@ resources:
   # Databases
   - databases/
   
+  # Git hosting & CI
+  - gitea/
+  
+  # Tunnel service (lrok backend)
+  - frp/
+  
   # Observability stack
   - observability/namespace.yaml
   - observability/loki/
@@ -23,6 +29,7 @@ resources:
   
   # Ingress & Certificates
   - cert-manager/
+  - cert-manager-porkbun/
   - traefik/
   
   # Storage
@@ -33,4 +40,6 @@ resources:
   
   # Secrets management
   - external-secrets/
-
+  
+  # Network security
+  - network-policies/

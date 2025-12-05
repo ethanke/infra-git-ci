@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitea-custom-theme
+  namespace: gitea
+data:
+  theme-lum-tools.css: "/* lum.tools Custom Theme for Gitea */\n/* Applies the luminous
+    efficiency design system */\n\n:root {\n  /* Brand Colors */\n  --color-primary:
+    #FF8000;\n  --color-primary-dark: #E67300;\n  --color-primary-light: #FFA040;\n
+    \ \n  --color-accent-pink: #E94055;\n  --color-accent-violet: #8A2BE2;\n  \n  /*
+    Backgrounds */\n  --color-background: #1A1A1A;\n  --color-surface: #242424;\n
+    \ --color-surface-hover: #2A2A2A;\n  \n  /* Text */\n  --color-text-primary: #F0F0F0;\n
+    \ --color-text-secondary: #A0A0A0;\n  --color-text-muted: #707070;\n  \n  /* Borders
+    */\n  --color-border: #383838;\n  --color-border-light: #484848;\n  \n  /* Status
+    Colors */\n  --color-success: #52C41A;\n  --color-warning: #FAAD14;\n  --color-error:
+    #F5222D;\n  --color-info: #1890FF;\n  \n  /* Spacing */\n  --spacing-xs: 4px;\n
+    \ --spacing-sm: 8px;\n  --spacing-md: 16px;\n  --spacing-lg: 24px;\n  --spacing-xl:
+    32px;\n  \n  /* Border Radius */\n  --border-radius-sm: 4px;\n  --border-radius-md:
+    8px;\n  --border-radius-lg: 16px;\n  \n  /* Shadows/Glows */\n  --shadow-sm: 0
+    0 8px rgba(138, 43, 226, 0.3);\n  --shadow-md: 0 4px 24px rgba(255, 128, 0, 0.2);\n
+    \ --glow-primary: 0 0 12px rgba(255, 128, 0, 0.4);\n}\n\n/* Base Theme Override
+    */\nbody {\n  background-color: var(--color-background) !important;\n  color:
+    var(--color-text-primary) !important;\n  font-family: 'Inter', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif !important;\n}\n\n/* Typography */\nh1,
+    h2, h3, h4, h5, h6 {\n  color: var(--color-text-primary) !important;\n  font-weight:
+    600 !important;\n}\n\ncode, pre, .markdown-code-block {\n  font-family: 'JetBrains
+    Mono', 'Fira Code', 'Courier New', monospace !important;\n  background-color:
+    var(--color-surface) !important;\n  border: 1px solid var(--color-border) !important;\n
+    \ border-radius: var(--border-radius-sm) !important;\n}\n\n/* Header/Navigation
+    */\n.ui.top.secondary.menu,\n.ui.menu,\n.navbar {\n  background-color: var(--color-surface)
+    !important;\n  border-bottom: 1px solid var(--color-border) !important;\n}\n\n.ui.menu
+    .item,\n.navbar .nav-link {\n  color: var(--color-text-secondary) !important;\n}\n\n.ui.menu
+    .active.item,\n.navbar .nav-link.active {\n  color: var(--color-primary) !important;\n
+    \ border-bottom-color: var(--color-primary) !important;\n}\n\n.ui.menu .item:hover
+    {\n  color: var(--color-text-primary) !important;\n  background-color: var(--color-surface-hover)
+    !important;\n}\n\n/* Primary Buttons */\n.ui.primary.button,\n.ui.primary.buttons
+    .button,\nbutton.primary,\n.btn-primary {\n  background-color: var(--color-primary)
+    !important;\n  color: var(--color-text-primary) !important;\n  border: none !important;\n
+    \ border-radius: var(--border-radius-md) !important;\n  font-weight: 500 !important;\n
+    \ transition: all 0.2s ease !important;\n}\n\n.ui.primary.button:hover,\n.btn-primary:hover
+    {\n  background-color: var(--color-primary-light) !important;\n  box-shadow: var(--glow-primary)
+    !important;\n  transform: translateY(-1px) !important;\n}\n\n.ui.primary.button:active
+    {\n  background-color: var(--color-primary-dark) !important;\n  transform: translateY(0)
+    !important;\n}\n\n/* Secondary Buttons */\n.ui.basic.button,\n.ui.secondary.button,\n.btn-secondary
+    {\n  background-color: transparent !important;\n  color: var(--color-text-primary)
+    !important;\n  border: 1px solid var(--color-border) !important;\n  border-radius:
+    var(--border-radius-md) !important;\n}\n\n.ui.basic.button:hover,\n.btn-secondary:hover
+    {\n  background-color: rgba(255, 255, 255, 0.05) !important;\n  border-color:
+    var(--color-border-light) !important;\n}\n\n/* Cards & Containers */\n.ui.segment,\n.ui.card,\n.card,\n.repository,\n.issue.list
+    .item {\n  background-color: var(--color-surface) !important;\n  border: 1px solid
+    var(--color-border) !important;\n  border-radius: var(--border-radius-lg) !important;\n
+    \ box-shadow: none !important;\n}\n\n.ui.segment:hover,\n.ui.card:hover {\n  border-color:
+    var(--color-border-light) !important;\n}\n\n/* Forms & Inputs */\n.ui.input input,\n.ui.form
+    input[type=\"text\"],\n.ui.form input[type=\"email\"],\n.ui.form input[type=\"password\"],\n.ui.form
+    textarea,\ninput.form-control,\ntextarea.form-control {\n  background-color: var(--color-background)
+    !important;\n  color: var(--color-text-primary) !important;\n  border: 1px solid
+    var(--color-border) !important;\n  border-radius: var(--border-radius-md) !important;\n
+    \ padding: var(--spacing-sm) var(--spacing-md) !important;\n}\n\n.ui.input input:focus,\n.ui.form
+    input:focus,\n.ui.form textarea:focus,\ninput:focus,\ntextarea:focus {\n  border-color:
+    var(--color-accent-violet) !important;\n  box-shadow: 0 0 0 2px rgba(138, 43,
+    226, 0.2) !important;\n  outline: none !important;\n}\n\n/* Labels & Tags */\n.ui.label,\n.label,\n.tag
+    {\n  background-color: var(--color-surface) !important;\n  color: var(--color-text-secondary)
+    !important;\n  border: 1px solid var(--color-border) !important;\n  border-radius:
+    var(--border-radius-sm) !important;\n  padding: 4px 12px !important;\n  font-size:
+    13px !important;\n}\n\n.ui.label.primary,\n.label-primary {\n  background-color:
+    var(--color-primary) !important;\n  color: var(--color-text-primary) !important;\n
+    \ border: none !important;\n}\n\n.ui.label.green,\n.label-success {\n  background-color:
+    var(--color-success) !important;\n  color: white !important;\n  border: none !important;\n}\n\n.ui.label.red,\n.label-danger
+    {\n  background-color: var(--color-error) !important;\n  color: white !important;\n
+    \ border: none !important;\n}\n\n/* Tables */\n.ui.table,\ntable {\n  background-color:
+    var(--color-surface) !important;\n  border: 1px solid var(--color-border) !important;\n
+    \ color: var(--color-text-primary) !important;\n}\n\n.ui.table thead th,\ntable
+    thead th {\n  background-color: var(--color-background) !important;\n  color:
+    var(--color-text-secondary) !important;\n  border-bottom: 2px solid var(--color-border)
+    !important;\n  font-weight: 600 !important;\n  text-transform: uppercase !important;\n
+    \ font-size: 12px !important;\n  letter-spacing: 0.5px !important;\n}\n\n.ui.table
+    tbody tr:hover,\ntable tbody tr:hover {\n  background-color: var(--color-surface-hover)
+    !important;\n}\n\n.ui.table td,\ntable td {\n  border-top: 1px solid var(--color-border)
+    !important;\n}\n\n/* Repository File Tree */\n.repository.file.list,\n.tree-list
+    {\n  background-color: var(--color-surface) !important;\n  border: 1px solid var(--color-border)
+    !important;\n  border-radius: var(--border-radius-lg) !important;\n}\n\n.repository.file.list
+    .item,\n.tree-list .item {\n  border-bottom: 1px solid var(--color-border) !important;\n}\n\n.repository.file.list
+    .item:hover {\n  background-color: var(--color-surface-hover) !important;\n}\n\n/*
+    Code Blocks */\n.markdown .highlight,\n.code-block,\npre.code {\n  background-color:
+    var(--color-background) !important;\n  border: 1px solid var(--color-border) !important;\n
+    \ border-radius: var(--border-radius-md) !important;\n  padding: var(--spacing-md)
+    !important;\n}\n\n/* Diff View */\n.diff-view .add-code,\n.diff-add {\n  background-color:
+    rgba(82, 196, 26, 0.1) !important;\n  border-left: 3px solid var(--color-success)
+    !important;\n}\n\n.diff-view .del-code,\n.diff-remove {\n  background-color: rgba(245,
+    34, 45, 0.1) !important;\n  border-left: 3px solid var(--color-error) !important;\n}\n\n/*
+    Tabs */\n.ui.tabular.menu .item,\n.nav-tabs .nav-link {\n  color: var(--color-text-secondary)
+    !important;\n  border-bottom: 2px solid transparent !important;\n}\n\n.ui.tabular.menu
+    .active.item,\n.nav-tabs .nav-link.active {\n  color: var(--color-primary) !important;\n
+    \ border-bottom-color: var(--color-primary) !important;\n  background-color: transparent
+    !important;\n}\n\n/* Dropdowns */\n.ui.dropdown .menu,\n.dropdown-menu {\n  background-color:
+    var(--color-surface) !important;\n  border: 1px solid var(--color-border) !important;\n
+    \ border-radius: var(--border-radius-md) !important;\n  box-shadow: var(--shadow-md)
+    !important;\n}\n\n.ui.dropdown .menu .item,\n.dropdown-item {\n  color: var(--color-text-primary)
+    !important;\n}\n\n.ui.dropdown .menu .item:hover,\n.dropdown-item:hover {\n  background-color:
+    var(--color-surface-hover) !important;\n}\n\n/* Modals */\n.ui.modal,\n.modal-content
+    {\n  background-color: var(--color-surface) !important;\n  border: 1px solid var(--color-border)
+    !important;\n  border-radius: var(--border-radius-lg) !important;\n  box-shadow:
+    var(--shadow-md) !important;\n}\n\n.ui.modal > .header,\n.modal-header {\n  background-color:
+    var(--color-background) !important;\n  border-bottom: 1px solid var(--color-border)
+    !important;\n  color: var(--color-text-primary) !important;\n}\n\n/* Pagination
+    */\n.ui.pagination.menu .item,\n.pagination .page-link {\n  background-color:
+    var(--color-surface) !important;\n  border: 1px solid var(--color-border) !important;\n
+    \ color: var(--color-text-primary) !important;\n}\n\n.ui.pagination.menu .active.item,\n.pagination
+    .page-link.active {\n  background-color: var(--color-primary) !important;\n  color:
+    white !important;\n  border-color: var(--color-primary) !important;\n}\n\n/* Footer
+    */\n.footer,\n.ui.footer {\n  background-color: var(--color-surface) !important;\n
+    \ border-top: 1px solid var(--color-border) !important;\n  color: var(--color-text-secondary)
+    !important;\n}\n\n/* Breadcrumbs */\n.breadcrumb,\n.ui.breadcrumb {\n  color:
+    var(--color-text-secondary) !important;\n}\n\n.breadcrumb .active,\n.ui.breadcrumb
+    .active.section {\n  color: var(--color-text-primary) !important;\n}\n\n/* Links
+    */\na {\n  color: var(--color-primary) !important;\n  text-decoration: none !important;\n}\n\na:hover
+    {\n  color: var(--color-primary-light) !important;\n  text-decoration: underline
+    !important;\n}\n\n/* Notifications/Alerts */\n.ui.message,\n.alert {\n  border-radius:
+    var(--border-radius-md) !important;\n  border: 1px solid var(--color-border) !important;\n}\n\n.ui.positive.message,\n.alert-success
+    {\n  background-color: rgba(82, 196, 26, 0.1) !important;\n  border-color: var(--color-success)
+    !important;\n  color: var(--color-success) !important;\n}\n\n.ui.negative.message,\n.alert-danger
+    {\n  background-color: rgba(245, 34, 45, 0.1) !important;\n  border-color: var(--color-error)
+    !important;\n  color: var(--color-error) !important;\n}\n\n.ui.info.message,\n.alert-info
+    {\n  background-color: rgba(24, 144, 255, 0.1) !important;\n  border-color: var(--color-info)
+    !important;\n  color: var(--color-info) !important;\n}\n\n.ui.warning.message,\n.alert-warning
+    {\n  background-color: rgba(250, 173, 20, 0.1) !important;\n  border-color: var(--color-warning)
+    !important;\n  color: var(--color-warning) !important;\n}\n\n/* Scrollbars */\n::-webkit-scrollbar
+    {\n  width: 12px;\n  height: 12px;\n}\n\n::-webkit-scrollbar-track {\n  background:
+    var(--color-background);\n}\n\n::-webkit-scrollbar-thumb {\n  background: var(--color-border);\n
+    \ border-radius: 6px;\n}\n\n::-webkit-scrollbar-thumb:hover {\n  background: var(--color-border-light);\n}\n\n/*
+    Loading Spinners */\n.ui.loader:before,\n.spinner-border {\n  border-color: rgba(255,
+    128, 0, 0.2) !important;\n  border-top-color: var(--color-primary) !important;\n}\n\n/*
+    Icons */\ni.icon,\n.icon {\n  color: var(--color-text-secondary) !important;\n}\n\n.ui.button
+    > i.icon,\n.btn i.icon {\n  color: inherit !important;\n}\n\n/* Avatar/Profile
+    */\n.ui.avatar.image,\n.avatar {\n  border: 2px solid var(--color-border) !important;\n
+    \ border-radius: 50% !important;\n}\n\n/* Repository Header */\n.repository .header
+    {\n  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-background)
+    100%) !important;\n  border-bottom: 1px solid var(--color-border) !important;\n
+    \ padding: var(--spacing-xl) !important;\n}\n\n.repository .header .repo-title
+    {\n  color: var(--color-text-primary) !important;\n  font-size: 32px !important;\n
+    \ font-weight: 600 !important;\n}\n\n/* Stats/Counters */\n.ui.statistic > .value,\n.stat-value
+    {\n  color: var(--color-primary) !important;\n  font-weight: 700 !important;\n}\n\n/*
+    Custom lum.tools Badge */\n.lum-badge {\n  display: inline-flex;\n  align-items:
+    center;\n  gap: 6px;\n  padding: 4px 12px;\n  background: linear-gradient(135deg,
+    var(--color-primary) 0%, var(--color-accent-pink) 100%);\n  color: white;\n  border-radius:
+    16px;\n  font-size: 12px;\n  font-weight: 600;\n  text-transform: uppercase;\n
+    \ letter-spacing: 0.5px;\n}\n\n/* Hover effects for interactive elements */\n.clickable:hover,\n.hoverable:hover
+    {\n  transform: translateY(-2px);\n  transition: transform 0.2s ease;\n}\n"
+kind: ConfigMap
+metadata:
+  name: gitea-custom-theme
+  namespace: gitea

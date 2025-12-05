@@ -1,0 +1,73 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frp-dashboard-ingress
+  namespace: frp
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: frp-frp-headers@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - frp.lum.tools
+      secretName: frp-dashboard-tls
+  rules:
+    - host: frp.lum.tools
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frps-service
+                port:
+                  number: 7500
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frp-tunnel-ingress
+  namespace: frp
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: frp-frp-buffering@kubernetescrd
+    # CRITICAL: Enable sticky sessions to ensure requests go to the same frps pod
+    # that has the active tunnel registered
+    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.name: "frp_tunnel"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.httponly: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - "*.t.lum.tools"
+        - "t.lum.tools"
+      secretName: frp-tunnel-tls
+  rules:
+    - host: "*.t.lum.tools"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frps-service
+                port:
+                  number: 8080
+    - host: "t.lum.tools"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frps-service
+                port:
+                  number: 8080
+
