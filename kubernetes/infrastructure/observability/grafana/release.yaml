@@ -17,36 +17,17 @@ spec:
         namespace: flux-system
   values:
     replicas: 1
-    
-    # Admin credentials
     adminUser: admin
     adminPassword: "admin"
-    
-    # Persistence
     persistence:
       enabled: true
       size: 10Gi
-      storageClassName: longhorn
-    
-    # Resources
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    
-    # Ingress disabled
+      storageClassName: hcloud-volumes
     ingress:
       enabled: false
-    
-    # Service
     service:
       type: ClusterIP
       port: 80
-    
-    # Datasources - minimal config
     datasources:
       datasources.yaml:
         apiVersion: 1
@@ -61,8 +42,6 @@ spec:
             uid: tempo
             url: http://tempo.observability:3100
             access: proxy
-    
-    # Sidecar
     sidecar:
       dashboards:
         enabled: true

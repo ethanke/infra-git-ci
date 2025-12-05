@@ -6,6 +6,7 @@ metadata:
   namespace: observability
 spec:
   interval: 30m
+  timeout: 10m
   chart:
     spec:
       chart: tempo
@@ -24,8 +25,7 @@ spec:
     # Single binary mode
     tempo:
       metricsGenerator:
-        enabled: true
-        remoteWriteUrl: "http://prometheus-operated.monitoring:9090/api/v1/write"
+        enabled: false
       
       storage:
         trace:
@@ -42,19 +42,11 @@ spec:
               endpoint: "0.0.0.0:4317"
             http:
               endpoint: "0.0.0.0:4318"
-        zipkin:
-          endpoint: "0.0.0.0:9411"
-        jaeger:
-          protocols:
-            grpc:
-              endpoint: "0.0.0.0:14250"
-            thrift_http:
-              endpoint: "0.0.0.0:14268"
       
       # Retention
       compactor:
         compaction:
-          block_retention: 168h  # 7 days
+          block_retention: 168h
     
     # Resources
     resources:
@@ -65,11 +57,11 @@ spec:
         cpu: 500m
         memory: 512Mi
     
-    # Persistence
+    # Persistence - use Hetzner CSI
     persistence:
       enabled: true
       size: 20Gi
-      storageClassName: longhorn
+      storageClassName: hcloud-volumes
     
     # Service for OTLP receivers
     service:
