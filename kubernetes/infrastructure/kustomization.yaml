@@ -7,16 +7,18 @@ kind: Kustomization
 resources:
   # Core infrastructure
   - sources/
+  - cert-issuers/
   
   # Observability stack
   - observability/namespace.yaml
+  - observability/prometheus/
   - observability/loki/
   - observability/tempo/
   - observability/promtail/
   - observability/grafana/
   
-  # # Databases
-  # - databases/
+  # Databases
+  - databases/
   
   # # Git hosting & CI
   # - gitea/

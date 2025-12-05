@@ -32,16 +32,25 @@ spec:
       datasources.yaml:
         apiVersion: 1
         datasources:
+          - name: Prometheus
+            type: prometheus
+            url: http://kube-prometheus-stack-prometheus.observability:9090
+            access: proxy
+            isDefault: true
           - name: Loki
             type: loki
             url: http://loki.observability:3100
             access: proxy
-            isDefault: true
           - name: Tempo
             type: tempo
             uid: tempo
             url: http://tempo.observability:3100
             access: proxy
+            jsonData:
+              tracesToLogsV2:
+                datasourceUid: loki
+              tracesToMetrics:
+                datasourceUid: prometheus
     sidecar:
       dashboards:
         enabled: true
