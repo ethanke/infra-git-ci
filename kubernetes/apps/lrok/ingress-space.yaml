@@ -1,0 +1,43 @@
+# Ingress for lrok.space (Namecheap domain)
+# Wildcard ingress for tunnel subdomains (*.lrok.space)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lrok-ingress-space
+  namespace: lrok
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-namecheap
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # external-dns annotations for automatic DNS records
+    external-dns.alpha.kubernetes.io/hostname: lrok.space,*.lrok.space
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - lrok.space
+    - "*.lrok.space"
+    secretName: lrok-space-wildcard-tls
+  rules:
+  # Root domain
+  - host: lrok.space
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lrok-service
+            port:
+              number: 80
+  # Wildcard for tunnel subdomains
+  - host: "*.lrok.space"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lrok-service
+            port:
+              number: 80

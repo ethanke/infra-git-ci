@@ -1,0 +1,56 @@
+# Cert-Manager ClusterIssuer for Namecheap (lrok.space domain)
+# Uses DNS-01 challenge via Namecheap API
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-namecheap
+spec:
+  acme:
+    # Production ACME server
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@lum.tools
+    privateKeySecretRef:
+      name: letsencrypt-namecheap-account-key
+    solvers:
+    # DNS-01 challenge for wildcard certificates
+    - dns01:
+        webhook:
+          groupName: acme.namecheap.com
+          solverName: namecheap
+          config:
+            apiKeySecretRef:
+              name: namecheap-credentials
+              key: api-key
+            apiUserSecretRef:
+              name: namecheap-credentials
+              key: api-user
+      selector:
+        dnsZones:
+        - "lrok.space"
+---
+# Staging issuer for testing
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-namecheap-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: admin@lum.tools
+    privateKeySecretRef:
+      name: letsencrypt-namecheap-staging-account-key
+    solvers:
+    - dns01:
+        webhook:
+          groupName: acme.namecheap.com
+          solverName: namecheap
+          config:
+            apiKeySecretRef:
+              name: namecheap-credentials
+              key: api-key
+            apiUserSecretRef:
+              name: namecheap-credentials
+              key: api-user
+      selector:
+        dnsZones:
+        - "lrok.space"

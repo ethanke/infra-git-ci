@@ -1,0 +1,5 @@
+{
+  "name": "@lum/ui",
+  "version": "1.0.0",
+  "exports": "./src/mod.ts"
+}

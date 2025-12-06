@@ -1,0 +1,21 @@
+{
+  "name": "@lum/lrok",
+  "version": "2.0.0",
+  "exports": "./app/server.ts",
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --allow-read --watch app/server.ts",
+    "start": "deno run --allow-net --allow-env --allow-read app/server.ts",
+    "check": "deno check app/server.ts"
+  },
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4",
+    "@std/dotenv": "jsr:@std/dotenv@^0.225",
+    "postgres": "https://deno.land/x/postgres@v0.19.3/mod.ts",
+    "@lum/core": "../../libs/shared-core/src/mod.ts",
+    "@lum/ui": "../../libs/shared-ui/src/mod.ts",
+    "@lum/db": "../../libs/shared-db/src/mod.ts"
+  },
+  "compilerOptions": {
+    "strict": true
+  }
+}

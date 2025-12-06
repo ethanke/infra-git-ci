@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blog-next
+  labels:
+    app.kubernetes.io/name: blog-next
+    app.kubernetes.io/part-of: lum-tools

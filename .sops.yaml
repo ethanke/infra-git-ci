@@ -1,0 +1,40 @@
+# SOPS Configuration for lum.tools infrastructure
+# https://github.com/mozilla/sops
+
+creation_rules:
+  # Encrypt all .enc.yaml files
+  - path_regex: .*\.enc\.yaml$
+    age: >-
+      # Replace with your Age public key
+      # Generate with: age-keygen -o age.key
+      # The public key is printed to stdout
+      AGE_PUBLIC_KEY_PLACEHOLDER
+    
+  # Encrypt secrets in kubernetes directory
+  - path_regex: kubernetes/.*secret.*\.yaml$
+    age: >-
+      AGE_PUBLIC_KEY_PLACEHOLDER
+
+# To use SOPS:
+#
+# 1. Generate Age key pair:
+#    age-keygen -o ~/.config/sops/age/keys.txt
+#
+# 2. Set environment variable:
+#    export SOPS_AGE_KEY_FILE=~/.config/sops/age/keys.txt
+#
+# 3. Update this file with your public key (starts with "age1")
+#
+# 4. Encrypt a file:
+#    sops -e secret.yaml > secret.enc.yaml
+#
+# 5. Decrypt a file:
+#    sops -d secret.enc.yaml
+#
+# 6. Edit in place:
+#    sops secret.enc.yaml
+#
+# For Kubernetes/FluxCD, create the decryption secret:
+#    kubectl create secret generic sops-age \
+#      --from-file=age.agekey=~/.config/sops/age/keys.txt \
+#      -n flux-system

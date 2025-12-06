@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lrok
+  namespace: lrok
+  labels:
+    app: lrok
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lrok
+  template:
+    metadata:
+      labels:
+        app: lrok
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: lrok
+          image: ghcr.io/luminatools/lrok:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "3000"
+            - name: ENV
+              value: "production"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: lrok-secrets
+                  key: database-url
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      imagePullSecrets:
+        - name: ghcr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lrok
+  namespace: lrok
+  labels:
+    app: lrok
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: lrok
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lrok
+  namespace: lrok
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - lrok.lum.tools
+      secretName: lrok-tls
+  rules:
+    - host: lrok.lum.tools
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lrok
+                port:
+                  number: 80

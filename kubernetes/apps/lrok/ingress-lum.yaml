@@ -1,0 +1,29 @@
+# Ingress for lrok.lum.tools (existing domain)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lrok-ingress-lum
+  namespace: lrok
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # external-dns annotation for automatic DNS record
+    external-dns.alpha.kubernetes.io/hostname: lrok.lum.tools
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - lrok.lum.tools
+    secretName: lrok-lum-tools-tls
+  rules:
+  - host: lrok.lum.tools
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lrok-service
+            port:
+              number: 80

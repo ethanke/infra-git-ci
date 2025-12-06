@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: platform-ingress
+  namespace: platform
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    external-dns.alpha.kubernetes.io/hostname: platform.lum.tools
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - platform.lum.tools
+    secretName: platform-lum-tools-tls
+  rules:
+  - host: platform.lum.tools
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: platform-service
+            port:
+              number: 80

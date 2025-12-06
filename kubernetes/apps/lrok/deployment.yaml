@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lrok-deployment
+  namespace: lrok
+  labels:
+    app: lrok
+    app.kubernetes.io/name: lrok
+    app.kubernetes.io/component: api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: lrok
+  template:
+    metadata:
+      labels:
+        app: lrok
+    spec:
+      imagePullSecrets:
+      - name: ghcr-creds
+      containers:
+      - name: lrok
+        image: ghcr.io/lum-tools/lrok:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        - name: ENV
+          value: "production"
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: postgres_host
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: postgres_port
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: postgres_db
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: postgres_user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: postgres_password
+        - name: SESSION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: session_secret
+        - name: PLATFORM_API_URL
+          value: "https://platform.lum.tools"
+        - name: PLATFORM_INTERNAL_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: lrok-secrets
+              key: platform_internal_secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false

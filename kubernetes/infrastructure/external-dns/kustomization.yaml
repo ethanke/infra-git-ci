@@ -1,4 +1,5 @@
 # external-dns Kustomization
+# Multi-provider DNS management for lum.tools (Porkbun) and lrok.space (Namecheap)
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -9,6 +10,7 @@ resources:
   - namespace.yaml
   - rbac.yaml
   - porkbun-credentials-secret.yaml
+  - ../namecheap-webhook/secrets.yaml
   - deployment.yaml
 
 commonLabels:

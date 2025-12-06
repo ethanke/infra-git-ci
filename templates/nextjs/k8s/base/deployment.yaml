@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{SERVICE_NAME}}-deployment
+  labels:
+    app: {{SERVICE_NAME}}
+    app.kubernetes.io/name: {{SERVICE_NAME}}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{SERVICE_NAME}}
+  template:
+    metadata:
+      labels:
+        app: {{SERVICE_NAME}}
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: {{SERVICE_NAME}}
+          image: registry.lum.tools/{{SERVICE_NAME}}:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+          # Uncomment to use secrets
+          # envFrom:
+          #   - secretRef:
+          #       name: {{SERVICE_NAME}}-secrets
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            allowPrivilegeEscalation: false
+      imagePullSecrets:
+        - name: registry-creds
