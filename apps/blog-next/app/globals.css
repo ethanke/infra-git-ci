@@ -1,0 +1,382 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Prism.js syntax highlighting styles */
+@import '../styles/prism.css';
+
+:root {
+  /* Luminous Efficiency - Brand Design System */
+  
+  /* Brand Colors */
+  --lum-orange: #FF8000;      /* Luminous Orange - Primary action color */
+  --lum-pink: #E94055;        /* Cosmic Pink - Secondary accent */
+  --lum-violet: #8A2BE2;      /* Quantum Violet - AI/Focus states */
+  --lum-yellow: #FFB300;      /* Bright yellow from logo */
+  --lum-purple: #9C27B0;      /* Rich purple from logo */
+  
+  /* Core Background Colors */
+  --background: 0 0% 10%; /* #1A1A1A - Base background */
+  --foreground: 0 0% 94%; /* #F0F0F0 - Starlight text */
+  --muted: 0 0% 14%; /* #242424 - Surface cards */
+  --muted-foreground: 0 0% 63%; /* #A0A0A0 - Secondary text */
+  
+  --popover: 0 0% 12%;
+  --popover-foreground: 0 0% 96%;
+  
+  --card: 0 0% 14%; /* Surface */
+  --card-foreground: 0 0% 94%;
+  
+  --border: 0 0% 16%; /* #2A2A2A - Borders (matching platform) */
+  --input: 0 0% 14%;
+  --ring: 271 76% 53%; /* #8A2BE2 - Quantum Violet focus */
+  
+  /* Accent Colors */
+  --primary: 32 100% 50%; /* #FF8000 - Luminous Orange */
+  --primary-foreground: 0 0% 8%;
+  
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 94%;
+  
+  --accent: 352 79% 60%; /* #E94055 - Cosmic Pink */
+  --accent-foreground: 0 0% 100%;
+  
+  --ai: 271 76% 53%; /* Quantum Violet - AI features */
+  --ai-foreground: 0 0% 100%;
+  
+  --destructive: 0 75% 52%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Border Radius - 8px grid based */
+  --radius: 1rem; /* 16px for cards */
+  --radius-button: 0.5rem; /* 8px for buttons */
+  --radius-input: 0.5rem; /* 8px for inputs */
+  
+  /* Shadows & Glows - Matching platform aesthetic */
+  --shadow-sm: 0 0 8px rgba(30, 27, 32, 0.15);
+  --shadow-md: 0 4px 24px rgba(255, 128, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(255, 128, 0, 0.15);
+  --glow-orange: 0 0 20px rgba(255, 128, 0, 0.2), 0 0 40px rgba(255, 128, 0, 0.12);
+  --glow-pink: 0 0 20px rgba(233, 64, 85, 0.2), 0 0 40px rgba(233, 64, 85, 0.12);
+  --glow-violet: 0 0 20px rgba(138, 43, 226, 0.2), 0 0 40px rgba(138, 43, 226, 0.12);
+  
+  /* Gradients - Brand identity */
+  --gradient-primary: linear-gradient(135deg, #FFB300 0%, #FF8000 50%, #E94055 100%);
+  --gradient-warm: linear-gradient(135deg, #FF8000 0%, #E94055 100%);
+  --gradient-cool: linear-gradient(135deg, #E94055 0%, #8A2BE2 100%);
+  
+  /* Transitions */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Spacing - 8px grid */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-screen font-sans antialiased;
+    background-color: hsl(var(--background));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight text-foreground;
+  }
+
+  p {
+    @apply text-muted-foreground;
+  }
+
+  code, pre {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  }
+}
+
+.gradient-bg {
+  background: #1A1A1A;
+}
+
+/* =====================================================
+ * COMPONENT SYSTEM - Reusable & Composable
+ * ===================================================== */
+
+/* * Card Component */
+.lum-card,
+.card {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: var(--spacing-lg);
+  transition: var(--transition);
+  box-shadow: none; /* No glow by default */
+}
+
+.lum-card:hover,
+.card:hover {
+  background-color: hsl(var(--muted));
+  border-color: hsl(var(--primary));
+  box-shadow: var(--shadow-md); /* Glow only on hover */
+}
+
+/* * Button Components - Platform-inspired */
+.btn-primary,
+button[type="submit"],
+button.btn-primary {
+  padding: 12px 24px;
+  border-radius: var(--radius-button);
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary:hover,
+button[type="submit"]:hover {
+  filter: brightness(1.1);
+  box-shadow: var(--glow-orange);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active,
+button[type="submit"]:active {
+  transform: translateY(0) scale(0.98);
+  filter: brightness(0.95);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  padding: 12px 24px;
+  border-radius: var(--radius-button);
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: hsl(var(--border));
+}
+
+/* Gradient Button */
+.btn-gradient,
+button.btn-gradient {
+  padding: 12px 24px;
+  border-radius: var(--radius-button);
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--gradient-primary);
+  color: hsl(var(--primary-foreground));
+  border: none;
+  text-decoration: none;
+}
+
+.btn-gradient:hover,
+button.btn-gradient:hover {
+  filter: brightness(0.95) saturate(1.1);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.btn-gradient:active,
+button.btn-gradient:active {
+  transform: translateY(0) scale(0.98);
+  filter: brightness(0.95);
+}
+
+/* * Glow Effects */
+.lum-glow {
+  box-shadow: 0 0 30px rgba(255, 128, 0, 0.16), 0 0 60px rgba(233, 64, 85, 0.08);
+}
+
+.lum-glow-orange {
+  box-shadow: var(--glow-orange);
+}
+
+.lum-glow-pink {
+  box-shadow: var(--glow-pink);
+}
+
+.lum-glow-violet {
+  box-shadow: var(--glow-violet);
+}
+
+/* Card hover glow effect */
+.hover\:glow:hover {
+  box-shadow: var(--shadow-md);
+  border-color: hsl(var(--primary));
+}
+
+/* * Code blocks with brand styling */
+code, pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--primary));
+  border: 1px solid hsl(var(--border));
+}
+
+pre {
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+/* * Typography Utilities - Platform-inspired */
+.lum-text-primary {
+  color: hsl(var(--foreground));
+}
+
+.lum-text-secondary {
+  color: hsl(var(--muted-foreground));
+}
+
+.lum-text-orange {
+  color: var(--lum-orange);
+}
+
+.lum-text-pink {
+  color: var(--lum-pink);
+}
+
+.lum-text-purple {
+  color: var(--lum-purple);
+}
+
+.lum-text-violet {
+  color: var(--lum-violet);
+}
+
+.lum-text-yellow {
+  color: var(--lum-yellow);
+}
+
+/* Gradient Text */
+.lum-gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* * Form Elements - Platform-inspired */
+input,
+select,
+textarea {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-input);
+  color: hsl(var(--foreground));
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: var(--transition-fast);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* * Links */
+a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--lum-pink);
+}
+
+/* * Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* * Text Selection */
+::selection {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+::-moz-selection {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* * Focus States */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.prose {
+  @apply prose-invert max-w-none;
+}
+
+.prose a {
+  @apply text-primary underline-offset-4 transition-colors hover:text-primary/80;
+}
+
+.prose img {
+  @apply rounded-2xl border border-border;
+}

@@ -1,44 +1,39 @@
-# Blog Next.js
-# Multi-stage build for production
+# syntax=docker/dockerfile:1.6
 
-FROM node:20-bookworm-slim AS deps
+FROM node:20-bullseye-slim AS deps
 ENV NODE_ENV=production PNPM_HOME=/root/.local/share/pnpm PATH=/root/.local/share/pnpm:$PATH
 RUN corepack enable && mkdir -p /app
+WORKDIR /app
+
+# Install lum-internals dependencies first
+COPY lum-internals/package.json ./lum-internals/
+WORKDIR /app/lum-internals
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile || pnpm install
+
+# Install main app dependencies
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile || pnpm install
 
-FROM node:20-bookworm-slim AS builder
+FROM node:20-bullseye-slim AS builder
 ENV NODE_ENV=production PNPM_HOME=/root/.local/share/pnpm PATH=/root/.local/share/pnpm:$PATH
-RUN corepack enable && mkdir -p /app
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+RUN corepack enable && mkdir -p /app && apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/lum-internals/node_modules ./lum-internals/node_modules
 COPY . .
-RUN pnpm build
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm build
 
-FROM node:20-bookworm-slim AS runner
-ENV NODE_ENV=production
+FROM node:20-bullseye-slim AS runner
+ENV NODE_ENV=production DEV_MODE=false
 RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-
+RUN useradd -r -u 1001 -g root nextjs
+USER nextjs
 WORKDIR /app
 
-# Copy built app
-COPY --from=builder --chown=appuser:appuser /app/.next ./.next
-COPY --from=builder --chown=appuser:appuser /app/node_modules ./node_modules
-COPY --from=builder --chown=appuser:appuser /app/package.json ./package.json
-COPY --from=builder --chown=appuser:appuser /app/public ./public
-COPY --from=builder --chown=appuser:appuser /app/posts ./posts
-
-USER appuser
+COPY --from=builder --chown=nextjs:root /app ./
 
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3000/en || exit 1
-
 CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]

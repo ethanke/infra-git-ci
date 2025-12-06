@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  status         PostStatus     @default(DRAFT)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  locale         String
+  title          String
+  summary        String?
+  content        String
+  seoTitle       String?
+  seoDescription String?
+  categories     PostCategory[]
+  tags           PostTag[]
+
+  @@unique([slug, locale])
+}
+
+model Category {
+  id           String                @id @default(cuid())
+  slug         String                @unique
+  name         String
+  translations CategoryTranslation[]
+  posts        PostCategory[]
+}
+
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  categoryId String
+  locale     String
+  name       String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([categoryId, locale])
+}
+
+model Tag {
+  id           String           @id @default(cuid())
+  slug         String           @unique
+  name         String
+  posts        PostTag[]
+  translations TagTranslation[]
+}
+
+model TagTranslation {
+  id     String @id @default(cuid())
+  tagId  String
+  locale String
+  name   String
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@unique([tagId, locale])
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+}
+
+model Subscriber {
+  id        String              @id @default(cuid())
+  email     String              @unique
+  isActive  Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  tokens    SubscriptionToken[]
+}
+
+model SubscriptionToken {
+  id           String     @id @default(cuid())
+  token        String     @unique
+  subscriberId String
+  type         TokenType
+  expiresAt    DateTime
+  createdAt    DateTime   @default(now())
+  usedAt       DateTime?
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum TokenType {
+  UNSUBSCRIBE
+  CONFIRMATION
+}

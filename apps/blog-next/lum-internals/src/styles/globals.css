@@ -1,0 +1,485 @@
+/**
+ * Lum.tools Design System - "Luminous Efficiency"
+ * 
+ * A Glass/Liquid/Isomorphic design system featuring:
+ * - Glassmorphism with backdrop-blur effects
+ * - Liquid gradients and flowing animations
+ * - Isomorphic depth with subtle elevation
+ * 
+ * Brand Colors:
+ * - Luminous Orange (#FF8000) - Primary actions, energy
+ * - Cosmic Pink (#E94055) - Secondary, creativity
+ * - Quantum Violet (#8A2BE2) - AI, focus states
+ */
+
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+
+:root {
+  /* === Brand Colors === */
+  --lum-orange: #FF8000;
+  --lum-orange-light: #FF9933;
+  --lum-orange-dark: #CC6600;
+  --lum-pink: #E94055;
+  --lum-pink-light: #FF6B7A;
+  --lum-pink-dark: #C43344;
+  --lum-violet: #8A2BE2;
+  --lum-violet-light: #A855F7;
+  --lum-violet-dark: #6B21A8;
+  
+  /* === Semantic Colors === */
+  --lum-success: #10B981;
+  --lum-warning: #F59E0B;
+  --lum-error: #EF4444;
+  --lum-info: #3B82F6;
+
+  /* === Typography === */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  
+  /* === Spacing Scale (8px grid) === */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  
+  /* === Border Radius === */
+  --radius-sm: 0.375rem;  /* 6px */
+  --radius: 0.5rem;       /* 8px */
+  --radius-md: 0.625rem;  /* 10px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+  
+  /* === Transitions === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   Dark Theme (Default - Always Dark)
+   ============================================ */
+
+:root,
+.dark {
+  color-scheme: dark;
+  
+  /* === Surface Colors === */
+  --background: #0A0A0B;
+  --background-subtle: #111113;
+  --surface: #18181B;
+  --surface-raised: #1F1F23;
+  --surface-overlay: #27272A;
+  
+  /* === Glass Surface Colors === */
+  --glass-bg: rgba(24, 24, 27, 0.7);
+  --glass-bg-subtle: rgba(24, 24, 27, 0.5);
+  --glass-bg-strong: rgba(24, 24, 27, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-border-active: rgba(255, 128, 0, 0.3);
+  
+  /* === Text Colors (Starlight System) === */
+  --foreground: #FAFAFA;
+  --foreground-muted: #A1A1AA;
+  --foreground-subtle: #71717A;
+  --foreground-disabled: #52525B;
+  
+  /* === Border Colors === */
+  --border: #27272A;
+  --border-muted: #1F1F23;
+  --border-focus: var(--lum-violet);
+  
+  /* === Interactive === */
+  --primary: var(--lum-orange);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--lum-pink);
+  --secondary-foreground: #FFFFFF;
+  --accent: var(--lum-violet);
+  --accent-foreground: #FFFFFF;
+  
+  /* === Semantic Surfaces === */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--foreground);
+  --muted: var(--surface);
+  --muted-foreground: var(--foreground-muted);
+  --destructive: var(--lum-error);
+  --destructive-foreground: #FFFFFF;
+  
+  /* === Form Elements === */
+  --input: var(--surface);
+  --input-border: var(--border);
+  --ring: var(--lum-violet);
+  
+  /* === Glow Effects === */
+  --glow-orange: 0 0 20px rgba(255, 128, 0, 0.25), 0 0 40px rgba(255, 128, 0, 0.15);
+  --glow-pink: 0 0 20px rgba(233, 64, 85, 0.25), 0 0 40px rgba(233, 64, 85, 0.15);
+  --glow-violet: 0 0 20px rgba(138, 43, 226, 0.25), 0 0 40px rgba(138, 43, 226, 0.15);
+  --glow-success: 0 0 20px rgba(16, 185, 129, 0.25);
+  
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3), 0 20px 40px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.35), 0 40px 60px rgba(0, 0, 0, 0.3);
+  
+  /* === Isomorphic Depth Shadows === */
+  --depth-1: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --depth-2: 0 3px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --depth-3: 0 10px 20px rgba(0, 0, 0, 0.35), 0 3px 6px rgba(0, 0, 0, 0.25);
+  --depth-4: 0 14px 28px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.3);
+  
+  /* === Liquid Gradients === */
+  --gradient-luminous: linear-gradient(135deg, var(--lum-orange), var(--lum-pink), var(--lum-violet));
+  --gradient-sunset: linear-gradient(135deg, var(--lum-orange), var(--lum-pink));
+  --gradient-cosmic: linear-gradient(135deg, var(--lum-pink), var(--lum-violet));
+  --gradient-aurora: linear-gradient(135deg, var(--lum-violet), #3B82F6, var(--lum-success));
+  --gradient-surface: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface) 100%);
+  
+  /* === Liquid Flow Gradients (Animated) === */
+  --liquid-flow: linear-gradient(
+    90deg,
+    var(--lum-orange) 0%,
+    var(--lum-pink) 25%,
+    var(--lum-violet) 50%,
+    var(--lum-pink) 75%,
+    var(--lum-orange) 100%
+  );
+}
+
+/* ============================================
+   Light Theme (Optional)
+   ============================================ */
+
+.light {
+  color-scheme: light;
+  
+  --background: #FAFAFA;
+  --background-subtle: #F4F4F5;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-overlay: #F4F4F5;
+  
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.5);
+  --glass-bg-strong: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-hover: rgba(0, 0, 0, 0.12);
+  --glass-border-active: rgba(255, 128, 0, 0.4);
+  
+  --foreground: #18181B;
+  --foreground-muted: #71717A;
+  --foreground-subtle: #A1A1AA;
+  --foreground-disabled: #D4D4D8;
+  
+  --border: #E4E4E7;
+  --border-muted: #F4F4F5;
+  
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --muted: #F4F4F5;
+  --muted-foreground: var(--foreground-muted);
+  
+  --input: var(--surface);
+  --input-border: var(--border);
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 8px 16px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* ============================================
+   Glass/Liquid Utility Classes
+   ============================================ */
+
+/* Glass Effect - Base */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-subtle {
+  background: var(--glass-bg-subtle);
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  border: 1px solid var(--glass-border);
+}
+
+/* Glass with Glow Border */
+.glass-glow {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.glass-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--gradient-luminous);
+  opacity: 0.3;
+  z-index: -1;
+  transition: opacity var(--transition-base);
+}
+
+.glass-glow:hover::before {
+  opacity: 0.5;
+}
+
+/* Isomorphic Depth */
+.depth-1 { box-shadow: var(--depth-1); }
+.depth-2 { box-shadow: var(--depth-2); }
+.depth-3 { box-shadow: var(--depth-3); }
+.depth-4 { box-shadow: var(--depth-4); }
+
+/* Glow Effects */
+.glow-orange { box-shadow: var(--glow-orange); }
+.glow-pink { box-shadow: var(--glow-pink); }
+.glow-violet { box-shadow: var(--glow-violet); }
+
+/* Liquid Gradient Text */
+.text-luminous {
+  background: var(--gradient-luminous);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+}
+
+.text-luminous-animated {
+  background: var(--liquid-flow);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: liquid-flow 3s linear infinite;
+}
+
+/* Liquid Flow Animation */
+@keyframes liquid-flow {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Shimmer Effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Pulse Glow Animation */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 128, 0, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(255, 128, 0, 0.5), 0 0 60px rgba(233, 64, 85, 0.3);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ============================================
+   Focus & Selection Styles
+   ============================================ */
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(255, 128, 0, 0.3);
+  color: var(--foreground);
+}
+
+/* ============================================
+   Scrollbar Styles
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-subtle);
+}
+
+/* ============================================
+   Motion & Accessibility
+   ============================================ */
+
+/* ============================================
+   Tailwind v4 Utilities
+   ============================================ */
+
+@utility bg-glass {
+  background: var(--glass-bg);
+}
+
+@utility bg-glass-subtle {
+  background: var(--glass-bg-subtle);
+}
+
+@utility bg-glass-strong {
+  background: var(--glass-bg-strong);
+}
+
+@utility border-glass-border {
+  border-color: var(--glass-border);
+}
+
+@utility border-glass-border-hover {
+  border-color: var(--glass-border-hover);
+}
+
+@utility border-glass-border-active {
+  border-color: var(--glass-border-active);
+}
+
+@utility shadow-depth-1 {
+  box-shadow: var(--depth-1);
+}
+
+@utility shadow-depth-2 {
+  box-shadow: var(--depth-2);
+}
+
+@utility shadow-depth-3 {
+  box-shadow: var(--depth-3);
+}
+
+@utility shadow-depth-4 {
+  box-shadow: var(--depth-4);
+}
+
+@utility bg-gradient-luminous {
+  background: var(--gradient-luminous);
+}
+
+@utility bg-gradient-sunset {
+  background: var(--gradient-sunset);
+}
+
+@utility bg-gradient-cosmic {
+  background: var(--gradient-cosmic);
+}
+
+@utility bg-gradient-aurora {
+  background: var(--gradient-aurora);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .shimmer::after,
+  .text-luminous-animated,
+  .pulse-glow,
+  .float {
+    animation: none;
+  }
+}

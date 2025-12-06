@@ -10,7 +10,6 @@ import { Hono } from "@hono/hono";
 import { logger } from "@hono/hono/logger";
 import { secureHeaders } from "@hono/hono/secure-headers";
 import { compress } from "@hono/hono/compress";
-import { cache } from "@hono/hono/cache";
 
 import { indexRoute } from "./routes/index.ts";
 import { seoRoutes } from "./routes/seo.ts";
@@ -21,9 +20,6 @@ const app = new Hono();
 app.use("*", logger());
 app.use("*", secureHeaders());
 app.use("*", compress());
-
-// Cache static pages (1 hour)
-app.use("/", cache({ cacheName: "landing", cacheControl: "public, max-age=3600" }));
 
 // Health check (must be fast, uncached)
 app.get("/health", (c) => {

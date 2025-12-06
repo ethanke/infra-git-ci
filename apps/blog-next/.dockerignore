@@ -1,0 +1,10 @@
+node_modules
+.git
+.gitea
+.github
+.next
+*.md
+docker-compose*.yml
+.env*
+.dockerignore*
+k8s/

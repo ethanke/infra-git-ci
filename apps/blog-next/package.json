@@ -1,0 +1,57 @@
+{
+  "name": "blog-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "seed": "ALLOW_DEMO_SEED=true node prisma/seed.js"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.2.1",
+    "@prisma/client": "^5.20.0",
+    "@radix-ui/react-avatar": "^1.0.5",
+    "@radix-ui/react-dialog": "^1.1.1",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-navigation-menu": "^1.1.4",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@tiptap/extension-link": "^2.5.8",
+    "@tiptap/react": "^2.5.8",
+    "@tiptap/starter-kit": "^2.5.8",
+    "@types/prismjs": "^1.26.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
+    "lucide-react": "^0.471.0",
+    "marked": "^16.4.1",
+    "next": "15.5.6",
+    "openai": "^6.7.0",
+    "prismjs": "^1.30.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "resend": "^6.3.0",
+    "tailwind-merge": "^2.2.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "0.5.15",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "10.4.19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.6",
+    "postcss": "8.4.38",
+    "prisma": "^5.20.0",
+    "tailwindcss": "3.4.10",
+    "tailwindcss-animate": "1.0.7",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa",
+  "prisma": {
+    "seed": "ALLOW_DEMO_SEED=true node prisma/seed.js"
+  }
+}
