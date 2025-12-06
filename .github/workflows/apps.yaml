@@ -6,16 +6,19 @@ on:
       - main
     paths:
       - 'apps/**'
+      - 'libs/**'
       - '.github/workflows/apps.yaml'
   pull_request:
     branches:
       - main
     paths:
       - 'apps/**'
+      - 'libs/**'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: luminatools
+  IMAGE_PREFIX: ethanke
 
 jobs:
   detect-changes:

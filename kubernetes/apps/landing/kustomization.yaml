@@ -10,5 +10,5 @@ resources:
   - ingress.yaml
 
 images:
-  - name: ghcr.io/lum-tools/landing
+  - name: ghcr.io/ethanke/landing
     newTag: latest

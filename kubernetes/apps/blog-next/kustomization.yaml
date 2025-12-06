@@ -11,5 +11,5 @@ resources:
   - secrets.yaml
 
 images:
-  - name: ghcr.io/lum-tools/blog-next
+  - name: ghcr.io/ethanke/blog-next
     newTag: latest

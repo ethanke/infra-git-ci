@@ -26,7 +26,7 @@ spec:
       - name: ghcr-creds
       containers:
       - name: lrok
-        image: ghcr.io/lum-tools/lrok:latest
+        image: ghcr.io/ethanke/lrok:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

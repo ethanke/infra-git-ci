@@ -26,7 +26,7 @@ spec:
       - name: ghcr-creds
       containers:
       - name: blog-next
-        image: ghcr.io/lum-tools/blog-next:latest
+        image: ghcr.io/ethanke/blog-next:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
