@@ -15,7 +15,8 @@ resources:
   # - observability/prometheus/
   - observability/loki/
   - observability/tempo/
-  - observability/promtail/
+  # TEMPORARILY DISABLED: promtail depends on prometheus stack
+  # - observability/promtail/
   - observability/grafana/
   
   # Databases
