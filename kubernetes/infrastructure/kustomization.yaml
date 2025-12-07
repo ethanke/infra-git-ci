@@ -26,7 +26,8 @@ resources:
   # - gitea/
   
   # Tunnel service (lrok backend)
-  - frp/
+  # TEMPORARILY DISABLED: frp-auth-plugin:v1.5.0 image not available in registry
+  # - frp/
   
   # # Ingress & Certificates
   # - cert-manager/
