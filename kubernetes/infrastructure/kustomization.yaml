@@ -20,8 +20,7 @@ resources:
   - observability/grafana/
   
   # Databases
-  # TEMPORARILY DISABLED: volume binding timeout issues - database pods stuck in Pending
-  # - databases/
+  - databases/
   
   # Git hosting & CI
   # - gitea/
