@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik-metrics-scraper
+  labels:
+    app.kubernetes.io/name: traefik-metrics-scraper
+    app.kubernetes.io/part-of: lum-tools

@@ -18,7 +18,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ethanke
+  IMAGE_PREFIX: luminatools
 
 jobs:
   detect-changes:
@@ -28,6 +28,7 @@ jobs:
       platform: ${{ steps.filter.outputs.platform }}
       lrok: ${{ steps.filter.outputs.lrok }}
       blog-next: ${{ steps.filter.outputs.blog-next }}
+      traefik-metrics-scraper: ${{ steps.filter.outputs.traefik-metrics-scraper }}
     steps:
       - uses: actions/checkout@v4
       
@@ -46,6 +47,8 @@ jobs:
               - 'libs/**'
             blog-next:
               - 'apps/blog-next/**'
+            traefik-metrics-scraper:
+              - 'apps/traefik-metrics-scraper/**'
 
   build-landing:
     needs: detect-changes
@@ -210,3 +213,44 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
+
+  build-traefik-metrics-scraper:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.traefik-metrics-scraper == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/traefik-metrics-scraper
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/traefik-metrics-scraper
+          file: apps/traefik-metrics-scraper/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
