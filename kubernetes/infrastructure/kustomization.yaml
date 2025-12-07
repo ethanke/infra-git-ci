@@ -11,7 +11,8 @@ resources:
   
   # Observability stack
   - observability/namespace.yaml
-  - observability/prometheus/
+  # TEMPORARILY DISABLED: prometheus stack failing on admission webhook pre-install
+  # - observability/prometheus/
   - observability/loki/
   - observability/tempo/
   - observability/promtail/
@@ -20,11 +21,11 @@ resources:
   # Databases
   - databases/
   
-  # # Git hosting & CI
+  # Git hosting & CI
   # - gitea/
   
-  # # Tunnel service (lrok backend)
-  # - frp/
+  # Tunnel service (lrok backend)
+  - frp/
   
   # # Ingress & Certificates
   # - cert-manager/
